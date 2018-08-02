@@ -1,0 +1,9 @@
+{% if latest_quran_data %}
+    <ul>
+    {% for hifz in latest_quran_data %}
+        <li><a href="url 'qurandata:detail' hifz.id">{{ hifz.surah_number }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hifz are available.</p>
+{% endif %}
