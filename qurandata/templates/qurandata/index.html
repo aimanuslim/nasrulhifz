@@ -1,9 +1,25 @@
 {% if latest_quran_data %}
     <ul>
     {% for hifz in latest_quran_data %}
-        <li><a href="url 'qurandata:detail' hifz.id">{{ hifz.surah_number }}</a></li>
+        <li><a href="{% url 'qurandata:ayatlist' hifz.surah_number %}">{{ hifz.surah_number }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
     <p>No hifz are available.</p>
+{% endif %}
+
+<span>
+	<form action="{% url 'qurandata:submit' %}" method="post">
+		{% csrf_token  %}
+		Surah Number: 
+		<input type="text" name="surah_number" value="">
+		Ayat Number: 
+		<input type="text" name="ayat_number" value="">
+		<input type="submit" value="Submit">
+	</form>
+
+</span>
+
+{% if message %}
+<h2>{{ message }}</h2>
 {% endif %}

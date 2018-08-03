@@ -1,0 +1,9 @@
+{% if ayat_list_for_surah %}
+	<ul>
+	{% for hifz in ayat_list_for_surah %}
+	    <li>{{ hifz.ayat_number }}</li>
+	{% endfor %}
+	</ul>
+{%  else %}
+	<p>No ayats are available.</p>
+{% endif %}
