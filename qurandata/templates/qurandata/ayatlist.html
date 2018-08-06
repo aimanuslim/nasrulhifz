@@ -1,7 +1,7 @@
 {% if ayat_list_for_surah %}
 	<ul>
 	{% for hifz in ayat_list_for_surah %}
-	    <li>{{ hifz.ayat_number }}</li>
+	    <li><a href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}" >{{ hifz.ayat_number }}</a></li>
 	{% endfor %}
 	</ul>
 {%  else %}

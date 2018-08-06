@@ -6,8 +6,8 @@ app_name = 'qurandata'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
-    # ex: /polls/5/
-    path('<int:pk>/', views.DetailView.as_view(), name="detail"),
     path('<int:surah_number>/ayats/', views.AyatListView.as_view(), name="ayatlist"),
-    path('submit/', views.submit, name='submit')
+    path('submit/', views.submit, name='submit'),
+    path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail")
+
 ]
