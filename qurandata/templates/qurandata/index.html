@@ -8,18 +8,11 @@
     <p>No hifz are available.</p>
 {% endif %}
 
-<span>
-	<form action="{% url 'qurandata:submit' %}" method="post">
-		{% csrf_token  %}
-		Surah Number: 
-		<input type="text" name="surah_number" value="">
-		Ayat Number: 
-		<input type="text" name="ayat_number" value="">
-		<input type="submit" value="Submit">
-	</form>
+<form action="{% url 'qurandata:enter' %}">
+    <input type="submit" value="Enter Data" />
+</form>
 
-</span>
-
+	
 {% if message %}
 <h2>{{ message }}</h2>
 {% endif %}

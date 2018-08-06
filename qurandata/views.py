@@ -4,14 +4,16 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 
-from .models import Hifz, QuranMeta
-from .forms import HifzForm
+from .models import Hifz, QuranMeta, WordIndex
+from .forms import HifzForm, WordIndexFormSet
+
 class IndexView(generic.ListView):
 	template_name = 'qurandata/index.html'
 	context_object_name = 'latest_quran_data'
 
 	def get_queryset(self):
 		return Hifz.objects.values('surah_number').distinct()
+
 class AyatListView(generic.ListView):
 	template_name = 'qurandata/ayatlist.html'
 	context_object_name = 'ayat_list_for_surah'
@@ -29,7 +31,22 @@ def submit(request):
 		message = 'Submission successful'
 	else:
 		message = 'Submission failed'
+
+
+	formset = WordIndexFormSet(request.POST)
+	if formset.is_valid():
+		for form in formset:
+			idx = form.cleaned_data.get('index')
+			if idx: WordIndex(hifz=hifz, index=idx).save()
+		message = 'Submission successful including word index'
+	else:
+		message = 'Submission failed due to word index'
+
 	return render(request, 'qurandata/index.html', {'message': message, 'latest_quran_data' : Hifz.objects.values('surah_number').distinct() })
+
+def enter(request):
+	formset = WordIndexFormSet(request.GET or None)
+	return render(request, 'qurandata/enter.html', {'formset': formset})
 
 
 def detail(request, surah_number, ayat_number):
@@ -41,6 +58,8 @@ def detail(request, surah_number, ayat_number):
 	else:
 		raise Http404("Quran String was not found for surah {} ayat {}".format(surah_number, ayat_number))
 	return render(request, 'qurandata/detail.html', {'quranmeta': qm})
+
+
 
 
 # def index(request):
