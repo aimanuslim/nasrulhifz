@@ -24,24 +24,33 @@ class AyatListView(generic.ListView):
 		return Hifz.objects.filter(surah_number=self.kwargs['surah_number']).values('surah_number', 'ayat_number').distinct()
 
 def submit(request):
-	form = HifzForm(request.POST)
-	if form.is_valid():
-		hifz = Hifz(surah_number=request.POST['surah_number'], ayat_number=request.POST['ayat_number'])
-		hifz.save()
-		message = 'Submission successful'
-	else:
-		message = 'Submission failed'
-
-
+	hifzform = HifzForm(request.POST)
 	formset = WordIndexFormSet(request.POST)
-	if formset.is_valid():
-		for form in formset:
-			idx = form.cleaned_data.get('index')
-			if idx: WordIndex(hifz=hifz, index=idx).save()
-		message = 'Submission successful including word index'
-	else:
-		message = 'Submission failed due to word index'
 
+	
+
+	if hifzform.is_valid():
+		hifz = Hifz(surah_number=request.POST['surah_number'], ayat_number=request.POST['ayat_number'])
+		# find surah ayat limits and ayat words limits
+		ayat_limit, wordindex_limit = findMeta(hifz.surah_number, hifz.ayat_number)
+		if int(hifz.ayat_number) <= ayat_limit:
+			hifz.save()
+			message = 'Submission successful'
+		else:
+			raise Http404('Ayat number exceeds')
+
+		if formset.is_valid():
+			for form in formset:
+				idx = form.cleaned_data.get('index')
+				if idx and idx < wordindex_limit: 
+					WordIndex(hifz=hifz, index=idx).save()
+					message = 'Submission successful including word index'
+				else:
+					raise Http404('Word index exceeds')
+		else:
+			raise Http404('Submission failed due to word index')
+	else:
+		raise Http404('Ayat limit exceeded')
 	return render(request, 'qurandata/index.html', {'message': message, 'latest_quran_data' : Hifz.objects.values('surah_number').distinct() })
 
 def enter(request):
@@ -59,7 +68,15 @@ def detail(request, surah_number, ayat_number):
 		raise Http404("Quran String was not found for surah {} ayat {}".format(surah_number, ayat_number))
 	return render(request, 'qurandata/detail.html', {'quranmeta': qm})
 
-
+def findMeta(surah_number, ayat_number):
+	ayat_limits = len(QuranMeta.objects.filter(surah_number=surah_number))
+	qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+	if len(qm) == 1:
+		qm = qm[0]
+	else:
+		return None, None
+	wordindex_limits = len(qm.ayat_string.split(" "))
+	return ayat_limits, wordindex_limits
 
 
 # def index(request):

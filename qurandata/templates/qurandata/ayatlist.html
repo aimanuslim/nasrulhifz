@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+
+{% block content %}
 {% if ayat_list_for_surah %}
 	<ul>
 	{% for hifz in ayat_list_for_surah %}
@@ -7,3 +11,4 @@
 {%  else %}
 	<p>No ayats are available.</p>
 {% endif %}
+{% endblock %}

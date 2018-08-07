@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 {% if latest_quran_data %}
     <ul>
     {% for hifz in latest_quran_data %}
@@ -8,11 +11,13 @@
     <p>No hifz are available.</p>
 {% endif %}
 
-<form action="{% url 'qurandata:enter' %}">
+<!-- <form action="{% url 'qurandata:enter' %}">
     <input type="submit" value="Enter Data" />
-</form>
+</form> -->
 
 	
 {% if message %}
 <h2>{{ message }}</h2>
 {% endif %}
+
+{% endblock %}
