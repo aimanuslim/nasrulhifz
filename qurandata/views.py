@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import generic
 
 from .models import Hifz, QuranMeta, WordIndex
-from .forms import HifzForm, WordIndexFormSet
+from .forms import HifzForm, WordIndexForm, WordIndexFormSet
 
 class IndexView(generic.ListView):
 	template_name = 'qurandata/index.html'
@@ -25,7 +25,9 @@ class AyatListView(generic.ListView):
 
 def submit(request):
 	hifzform = HifzForm(request.POST)
-	formset = WordIndexFormSet(request.POST)
+	windexform = WordIndexForm(request.POST)
+	print(request.POST.getlist('index'))
+	print(windexform)
 
 	
 
@@ -39,23 +41,17 @@ def submit(request):
 		else:
 			raise Http404('Ayat number exceeds')
 
-		if formset.is_valid():
-			for form in formset:
-				idx = form.cleaned_data.get('index')
-				if idx and idx < wordindex_limit: 
-					WordIndex(hifz=hifz, index=idx).save()
-					message = 'Submission successful including word index'
-				else:
-					raise Http404('Word index exceeds')
-		else:
-			raise Http404('Submission failed due to word index')
+
+
 	else:
 		raise Http404('Ayat limit exceeded')
 	return render(request, 'qurandata/index.html', {'message': message, 'latest_quran_data' : Hifz.objects.values('surah_number').distinct() })
 
 def enter(request):
-	formset = WordIndexFormSet(request.GET or None)
-	return render(request, 'qurandata/enter.html', {'formset': formset})
+	hifzform = HifzForm(request.GET or None)
+	wiform = WordIndexForm(request.GET or None)
+	wiformset = WordIndexFormSet(request.GET or None)
+	return render(request, 'qurandata/enter.html', {'hifzform': hifzform, 'wiform': wiform, 'wiformset': wiformset})
 
 
 def detail(request, surah_number, ayat_number):

@@ -1,0 +1,17 @@
+.custom-plus {
+    width: 78px !important;
+    border-radius: 5px !important;
+}
+
+.custom-submit {
+	width: 100px !important;
+    border-radius: 5px !important;	
+}
+
+.custom-form {
+	width: 200px !important;
+}
+
+.custom-size {
+	width: 500px !important;
+}
