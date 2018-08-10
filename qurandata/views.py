@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 
+from django.contrib import messages
+
 from .models import Hifz, QuranMeta, WordIndex
 from .forms import HifzForm, WordIndexForm, WordIndexFormSet
 
@@ -25,9 +27,7 @@ class AyatListView(generic.ListView):
 
 def submit(request):
 	hifzform = HifzForm(request.POST)
-	windexform = WordIndexForm(request.POST)
-	print(request.POST.getlist('index'))
-	print(windexform)
+	windexformset = WordIndexFormSet(request.POST)
 
 	
 
@@ -38,20 +38,65 @@ def submit(request):
 		if int(hifz.ayat_number) <= ayat_limit:
 			hifz.save()
 			message = 'Submission successful'
+
 		else:
 			raise Http404('Ayat number exceeds')
 
+		if windexformset.is_valid():
+			for wiform in windexformset:
+				index = wiform.cleaned_data.get('index')
+				if index <= wordindex_limit:
+					WordIndex(index=index,hifz=hifz).save()
+				else:
+					raise Http404("Word index limit exceeded")
+		else:
+			raise Http404("Word index data invalid")
 
 
 	else:
 		raise Http404('Ayat limit exceeded')
-	return render(request, 'qurandata/index.html', {'message': message, 'latest_quran_data' : Hifz.objects.values('surah_number').distinct() })
+	messages.success(request, message)
+	return HttpResponseRedirect("qurandata/enter.html")
+	# return render(request, 'qurandata/index.html', {'message': message, 'latest_quran_data' : Hifz.objects.values('surah_number').distinct() })
 
 def enter(request):
-	hifzform = HifzForm(request.GET or None)
-	wiform = WordIndexForm(request.GET or None)
-	wiformset = WordIndexFormSet(request.GET or None)
-	return render(request, 'qurandata/enter.html', {'hifzform': hifzform, 'wiform': wiform, 'wiformset': wiformset})
+
+	if request.method == 'GET':
+		hifzform = HifzForm(request.GET or None)
+		wiform = WordIndexForm(request.GET or None)
+		wiformset = WordIndexFormSet(request.GET or None)
+		return render(request, 'qurandata/enter.html', {'hifzform': hifzform, 'wiform': wiform, 'wiformset': wiformset})
+
+	if request.method == 'POST':
+		hifzform = HifzForm(request.POST)
+		windexformset = WordIndexFormSet(request.POST)
+
+		if hifzform.is_valid():
+			hifz = Hifz(surah_number=request.POST['surah_number'], ayat_number=request.POST['ayat_number'])
+			# find surah ayat limits and ayat words limits
+			ayat_limit, wordindex_limit = findMeta(hifz.surah_number, hifz.ayat_number)
+			if int(hifz.ayat_number) <= ayat_limit:
+				hifz.save()
+				message = 'Submission successful'
+
+			else:
+				raise Http404('Ayat number exceeds')
+
+			if windexformset.is_valid():
+				for wiform in windexformset:
+					index = wiform.cleaned_data.get('index')
+					if index <= wordindex_limit:
+						WordIndex(index=index,hifz=hifz).save()
+					else:
+						raise Http404("Word index limit exceeded")
+			else:
+				raise Http404("Word index data invalid")
+
+
+		else:
+			raise Http404('Ayat limit exceeded')
+		messages.success(request, message)
+		return HttpResponseRedirect("")
 
 
 def detail(request, surah_number, ayat_number):

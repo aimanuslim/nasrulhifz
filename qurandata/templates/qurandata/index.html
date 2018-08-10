@@ -2,11 +2,12 @@
 
 {% block content %}
 {% if latest_quran_data %}
-    <ul>
+	<div class="list-group custom-size">
+		<a class="list-group-item list-group-item-primary"><h2>Surah Number</h2></a>
     {% for hifz in latest_quran_data %}
-        <li><a href="{% url 'qurandata:ayatlist' hifz.surah_number %}">{{ hifz.surah_number }}</a></li>
+        <a class="list-group-item list-group-item-action" href="{% url 'qurandata:ayatlist' hifz.surah_number %}">{{ hifz.surah_number }}</a>
     {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>No hifz are available.</p>
 {% endif %}

@@ -2,7 +2,9 @@
 
 {% block content %}
  
-<form class="custom-size" method="POST" action="{% url 'qurandata:submit' %}" >
+<div class="row">
+
+<form class="custom-size" method="POST" action="{% url 'qurandata:enter' %}" >
 	{% csrf_token %}
 	<div class="d-flex justify-content-center ">
 		<div class="col-6">
@@ -48,6 +50,19 @@
 
 </form>
 
+</div>
+
+<div class="row">
+{% if messages %}
+    {% for message in messages %}
+    
+    <div class="alert alert-success">
+	  {{message}}
+	</div>
+
+    {% endfor %}
+{% endif %}
+</div>
 
 
 {% endblock %}
