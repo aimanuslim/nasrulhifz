@@ -1,4 +1,10 @@
 from django.db import models
+from enum import Enum
+
+class DifficultyChoice(Enum):   # A subclass of Enum
+	EASY = 3
+	MEDIUM = 2
+	HARD = 1
 
 # Create your models here.
 class Hifz(models.Model):
@@ -11,6 +17,7 @@ class Hifz(models.Model):
 class WordIndex(models.Model):
 	hifz = models.ForeignKey(Hifz, on_delete=models.CASCADE)
 	index = models.SmallIntegerField()
+	difficulty = models.SmallIntegerField(choices=[(tag, tag.value) for tag in DifficultyChoice])
 
 	def __str__(self):
 		return "Index {}".format(self.index)
@@ -21,3 +28,4 @@ class QuranMeta(models.Model):
 	surah_number = models.SmallIntegerField()
 	ayat_number = models.SmallIntegerField()
 	ayat_string = models.CharField(max_length=100000)
+

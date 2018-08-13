@@ -100,14 +100,46 @@ def enter(request):
 
 
 def detail(request, surah_number, ayat_number):
-	print("{} {}".format(surah_number, ayat_number))
 	qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
 	if len(qm) == 1:
 		qm = qm[0]
-		
+
 	else:
 		raise Http404("Quran String was not found for surah {} ayat {}".format(surah_number, ayat_number))
-	return render(request, 'qurandata/detail.html', {'quranmeta': qm})
+
+	to_display = qm.ayat_string.split(" ")[::-1]
+	form_meta = {}
+	display_meta = []
+	for i, disp in enumerate(to_display):
+		form_meta["class-word-" + str(i)] = "word-" + str(i)
+		display_meta.append("class-word-" + str(i))
+
+
+	if request.method == 'GET':	
+		data = {'quranmeta': qm, 'splitted_ayat': to_display, 'form_meta': form_meta, 'display_meta': display_meta}
+		return render(request, 'qurandata/detail.html', data)
+
+
+	if request.method == 'POST':
+		# data = {'quranmeta': qm, 'splitted_ayat':  display_meta, 'form_meta': form_meta, 'display_meta': display_meta, 'message': "Word difficulties updated."}
+		hifz = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+		hifz = hifz[0]
+		wset = hifz.wordindex_set.all()
+		for i in range(len(to_display)):
+			wordindex_difficulty = request.POST["class-word-" + str(i)]
+			if wset:
+				w = wset.filter(index=i)
+				w[0].difficulty = int(wordindex_difficulty)
+				w[0].save()
+			else:
+				WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
+
+		message = "Word difficulties updated."
+		messages.success(request, message)
+		return HttpResponseRedirect("")
+
+
+
 
 def findMeta(surah_number, ayat_number):
 	ayat_limits = len(QuranMeta.objects.filter(surah_number=surah_number))

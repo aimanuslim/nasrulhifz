@@ -2,5 +2,46 @@
 
 
 {% block content %}
-<h1>{{ quranmeta.ayat_string }}</h1>
+
+
+<form method="POST">
+	{% csrf_token %}
+ <table class="table table-bordered">
+ 	<tbody>
+      <tr>
+      	{% for word in splitted_ayat %}
+        <td>{{ word }}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+      	{% for meta in display_meta reversed %}
+        	<td class="table-success"><input type="hidden" name="{{ meta }}" value="3"></td>
+        {% endfor %}
+      </tr>
+  </tbody>
+
+	</table>
+  
+  	
+
+
+  	<div class=" text-center">
+  <button class="btn-success custom-submit" type="submit">
+  			Update Difficulties
+  		</button>
+  	</div>
+  </form>
+
+<br>
+  	{% if messages %}
+  	{% for message in messages %}
+
+  	<div class="alert alert-success">
+  		{{message}}
+  	</div>
+
+  	{% endfor %}
+  	{% endif %}
+
+
 {% endblock %}

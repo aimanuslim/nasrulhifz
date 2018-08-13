@@ -3,11 +3,16 @@
 
 {% block content %}
 {% if ayat_list_for_surah %}
-	<ul>
-	{% for hifz in ayat_list_for_surah %}
-	    <li><a href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}" >{{ hifz.ayat_number }}</a></li>
-	{% endfor %}
-	</ul>
+	
+
+	<div class="list-group">
+		<a class="list-group-item list-group-item-primary"><h2>Ayat List</h2></a>
+    {% for hifz in ayat_list_for_surah %}
+        <a class="list-group-item list-group-item-action" href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</a>
+    {% endfor %}
+    </div>
+
+	
 {%  else %}
 	<p>No ayats are available.</p>
 {% endif %}
