@@ -23,9 +23,7 @@ class WordIndex(models.Model):
 		return "Index {}".format(self.index)
 
 
-
 class QuranMeta(models.Model):
-	surah_number = models.SmallIntegerField()
-	ayat_number = models.SmallIntegerField()
-	ayat_string = models.CharField(max_length=100000)
-
+	surah_number = models.CharField(max_length=10000)
+	ayat_number = models.CharField(max_length=10000)
+	ayat_string = models.CharField(max_length=10000)

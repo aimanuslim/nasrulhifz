@@ -129,9 +129,12 @@ def detail(request, surah_number, ayat_number):
 			wordindex_difficulty = request.POST["class-word-" + str(i)]
 			if wset:
 				w = wset.filter(index=i)
-				w[0].difficulty = int(wordindex_difficulty)
-				w[0].save()
+				w = w[0]
+				w.difficulty = int(wordindex_difficulty)
+				# print("Index {} Difficulty {}".format(w[0].index, w[0].difficulty))
+				w.save()
 			else:
+				print("Creating new word indices")
 				WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
 
 		message = "Word difficulties updated."
