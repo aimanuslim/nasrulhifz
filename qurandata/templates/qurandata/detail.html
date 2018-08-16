@@ -1,47 +1,50 @@
 {% extends "base.html" %}
-
+{% load ayat_extras%}
 
 {% block content %}
 
 
 <form method="POST">
-	{% csrf_token %}
- <table class="table table-bordered">
- 	<tbody>
+    {% csrf_token %}
+ <table class="table table-bordered" DIR="RTL">
+    <tbody>
+      {% for wordb, metab in display_with_meta|batch:10 %}
       <tr>
-      	{% for word in splitted_ayat %}
-        <td>{{ word }}</td>
-        {% endfor %}
+          {% for word in wordb %}
+          <td>{{ word }}</td>
+          {% endfor %}
       </tr>
       <tr>
-      	{% for meta in display_meta reversed %}
-        	<td class="table-success"><input type="hidden" name="{{ meta }}" value="3"></td>
-        {% endfor %}
+          {% for meta, tstring in metab %}
+          <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="3"></td>
+          {% endfor %}
       </tr>
+      {% endfor %}
+
   </tbody>
 
-	</table>
+    </table>
   
-  	
 
 
-  	<div class=" text-center">
+
+    <div class=" text-center">
   <button class="btn-success custom-submit" type="submit">
-  			Update Difficulties
-  		</button>
-  	</div>
+            Update Difficulties
+        </button>
+    </div>
   </form>
 
 <br>
-  	{% if messages %}
-  	{% for message in messages %}
+    {% if messages %}
+    {% for message in messages %}
 
-  	<div class="alert alert-success">
-  		{{message}}
-  	</div>
+    <div class="alert alert-success">
+        {{message}}
+    </div>
 
-  	{% endfor %}
-  	{% endif %}
+    {% endfor %}
+    {% endif %}
 
 
 {% endblock %}
