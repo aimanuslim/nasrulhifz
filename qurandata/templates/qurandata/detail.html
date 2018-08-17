@@ -15,8 +15,8 @@
           {% endfor %}
       </tr>
       <tr>
-          {% for meta, tstring in metab %}
-          <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="3"></td>
+          {% for meta, tstring, difficulty in metab %}
+          <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="{{ difficulty }}"></td>
           {% endfor %}
       </tr>
       {% endfor %}
@@ -24,7 +24,7 @@
   </tbody>
 
     </table>
-  
+
 
 
 

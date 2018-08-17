@@ -5,6 +5,6 @@ register = template.Library()
 @register.filter
 def batch(iterable, n=1):
     l = len(iterable[0])
-    a, b, c = iterable
+    a, b, c, d = iterable
     for ndx in range(0, l, n):
-        yield a[ndx:min(ndx + n, l)], zip(b[ndx:min(ndx + n, l)], c[ndx:min(ndx + n, l)])
+        yield a[ndx:min(ndx + n, l)], zip(b[ndx:min(ndx + n, l)], c[ndx:min(ndx + n, l)], d[ndx:min(ndx + n, l)])

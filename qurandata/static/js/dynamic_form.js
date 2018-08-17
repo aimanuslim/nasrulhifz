@@ -27,6 +27,10 @@ function deleteForm(prefix, btn) {
 }
 
 $(document).ready(function(){
+
+    $("#submit-button").click(function(){
+        $this.parent().attr('method') = "POST"
+    });
 	
 	$(".add").click(function() {
 		// console.log("Here")
