@@ -17,7 +17,7 @@
 	<br>
 
 	<div class="d-flex justify-content-center">
-	<button id="display-button" class="btn-primary btn" type="submit">
+	<button id="display-button" class="btn-primary btn" type="submit" formmethod="get">
 		Display Ayat
 	</button>
 	</div>
@@ -49,7 +49,7 @@
 	{% endif %}
 
   <div class="d-flex justify-content-center">
-  		<button id="submit-button" class="btn-success custom-submit" type="submit">
+  		<button id="submit-button" class="btn-success custom-submit btn" type="submit" formmethod="post">
   			Submit
   		</button>
   </div>
@@ -64,8 +64,8 @@
 
 {% if messages %}
     {% for message in messages %}
-    
-    <div class="alert alert-success">
+
+    <div class="{{message.tags}}">
 	  {{message}}
 	</div>
 

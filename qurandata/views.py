@@ -59,43 +59,34 @@ def submit(request):
 def enter(request):
 
     if request.method == 'GET':
+        hifzform = HifzForm(request.GET or None)
         if request.GET.get('surah_number') and request.GET.get('ayat_number'):
             data = return_ayat_details(request.GET['surah_number'], request.GET['ayat_number'])
-            return HttpResponseRedirect(data)
+            data['hifzform'] = hifzform
+            print("Data {}".format(data))
+            return render(request, 'qurandata/enter.html', data)
         else:
-            hifzform = HifzForm(request.GET or None)
             return render(request, 'qurandata/enter.html', { 'hifzform': hifzform })
 
 
     if request.method == 'POST':
         hifzform = HifzForm(request.POST)
-        windexformset = WordIndexFormSet(request.POST)
+        surah_number = request.POST['surah_number']
+        ayat_number = request.POST['ayat_number']
 
         if hifzform.is_valid():
-            hifz = Hifz(surah_number=request.POST['surah_number'], ayat_number=request.POST['ayat_number'])
-            # find surah ayat limits and ayat words limits
-            ayat_limit, wordindex_limit = findMeta(hifz.surah_number, hifz.ayat_number)
-            if int(hifz.ayat_number) <= ayat_limit:
-                hifz.save()
+            ayat_limit = findMetaSurah(surah_number)
+            if int(ayat_number) <= ayat_limit:
+                save_word_index_difficulty(request, surah_number, ayat_number)
                 message = 'Submission successful'
-
+                messages.success(request, message, extra_tags='alert alert-success')
             else:
-                raise Http404('Ayat number exceeds')
-
-            if windexformset.is_valid():
-                for wiform in windexformset:
-                    index = wiform.cleaned_data.get('index')
-                    if index <= wordindex_limit:
-                        WordIndex(index=index,hifz=hifz).save()
-                    else:
-                        raise Http404("Word index limit exceeded")
-            else:
-                raise Http404("Word index data invalid")
-
-
+                message = "Ayat number exceeds limit for surah"
+                messages.warning(request, message, extra_tags='alert alert-danger')
         else:
-            raise Http404('Ayat limit exceeded')
-        messages.success(request, message)
+            message = "Ayat number exceeds limit for surah"
+            messages.warning(request, message, extra_tags='alert alert-danger')
+
         return HttpResponseRedirect("")
 
 def get_string_table_type_from_difficulty(level):
@@ -118,9 +109,18 @@ def return_ayat_details(surah_number, ayat_number):
         form_meta["class-word-" + str(i)] = "word-" + str(i)
         display_meta.append("class-word-" + str(i))
 
-    wordindexset = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].wordindex_set.all()
-    tablecolorset = [get_string_table_type_from_difficulty(w.difficulty) for w in wordindexset]
-    wordindexsetdifficulties = [w.difficulty for w in wordindexset]
+    hifz_query = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+
+    if hifz_query:
+        wordindexset = hifz_query[0].wordindex_set.all()
+        print(len(wordindexset))
+        tablecolorset = [get_string_table_type_from_difficulty(w.difficulty) for w in wordindexset]
+        wordindexsetdifficulties = [w.difficulty for w in wordindexset]
+    else:
+        tablecolorset = [get_string_table_type_from_difficulty(3) for w in range(0, len(to_display))]
+        wordindexsetdifficulties = [3 for w in range(0, len(to_display))]
+
+    print(tablecolorset, wordindexsetdifficulties)
 
     display_with_meta = (to_display, display_meta, tablecolorset, wordindexsetdifficulties)
 
@@ -129,10 +129,23 @@ def return_ayat_details(surah_number, ayat_number):
 
 def save_word_index_difficulty(request, surah_number, ayat_number):
     hifz = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
-    hifz = hifz[0]
-    wset = hifz.wordindex_set.all()
-    for i in range(len(wset)):
-        wordindex_difficulty = request.POST["class-word-" + str(i)]
+
+    if hifz:
+        hifz = hifz[0]
+        wset = hifz.wordindex_set.all()
+        len_wset = len(wset)
+    else:
+        hifz = Hifz(surah_number=surah_number, ayat_number=ayat_number)
+        hifz.save()
+        qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+        qm = qm[0]
+        len_wset = len(qm.ayat_string.split(" "))
+        wset = None
+
+    for i in range(0, len_wset):
+        wordindex_difficulty = request.POST.get("class-word-" + str(i))
+        if not wordindex_difficulty: wordindex_difficulty = 3
+
         if wset:
             w = wset.filter(index=i)
             w = w[0]
@@ -148,6 +161,7 @@ def detail(request, surah_number, ayat_number):
     data = return_ayat_details(surah_number,ayat_number)
 
     if request.method == 'GET':
+        print(data)
         return render(request, 'qurandata/detail.html', data)
 
 
@@ -160,16 +174,18 @@ def detail(request, surah_number, ayat_number):
 
 
 
-
-def findMeta(surah_number, ayat_number):
-    ayat_limits = len(QuranMeta.objects.filter(surah_number=surah_number))
+def findMetaAyat(surah_number, ayat_number):
     qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
     if len(qm) == 1:
         qm = qm[0]
     else:
-        return None, None
-    wordindex_limits = len(qm.ayat_string.split(" "))
-    return ayat_limits, wordindex_limits
+        return None
+    wordindex_limit = len(qm.ayat_string.split(" "))
+    return wordindex_limit
+
+def findMetaSurah(surah_number):
+    ayat_limit = len(QuranMeta.objects.filter(surah_number=surah_number))
+    return ayat_limit
 
 
 # def index(request):
