@@ -1,21 +1,31 @@
 {% load ayat_extras%}
-<form method="POST">
-    {% csrf_token %}
- <table class="table table-bordered" DIR="RTL">
-    <tbody>
-      {% for wordb, metab in display_with_meta|batch:10 %}
-      <tr>
-          {% for word in wordb %}
-          <td>{{ word }}</td>
-          {% endfor %}
-      </tr>
-      <tr>
-          {% for meta, tstring, difficulty in metab %}
-          <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="{{ difficulty }}"></td>
-          {% endfor %}
-      </tr>
-      {% endfor %}
 
-  </tbody>
 
-    </table>
+<div class="text-center">
+    <button type="button" class="btn btn-light"><h2>{{ surah_name }}</h2></button>
+
+</div>
+
+<br>
+
+
+    <div class="table-responsive">
+        <table class="table table-bordered" DIR="RTL">
+            <tbody>
+            {% for wordb, metab in display_with_meta|batch:10 %}
+            <tr>
+                {% for word in wordb %}
+                <td>{{ word }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for meta, tstring, difficulty in metab %}
+                <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="{{ difficulty }}"></td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>

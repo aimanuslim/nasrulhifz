@@ -1,4 +1,6 @@
 var idx = 1
+
+var showingLimit = false
 function cloneMore(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
@@ -28,9 +30,27 @@ function deleteForm(prefix, btn) {
 
 $(document).ready(function(){
 
-    $("#submit-button").click(function(){
-        $this.parent().attr('method') = "POST"
+
+
+    $("#limit-button").click(function(){
+        if(showingLimit){
+            $('#ayat-mode-input').val('ayat_number')
+            $('#limit-forms').fadeOut(150);
+            $('#ayat-number-input').fadeIn(2000);
+            $("#limit-button").text('Enter limits')
+            showingLimit = false
+        } else{
+            $('#ayat-mode-input').val('ayat_limit')
+            $('#limit-forms').fadeIn(2000);
+            $('#ayat-number-input').fadeOut(150);
+            $("#limit-button").text('Enter ayat')
+            showingLimit = true
+        }
+
     });
+
+
+
 	
 	$(".add").click(function() {
 		// console.log("Here")
