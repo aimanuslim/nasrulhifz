@@ -9,12 +9,18 @@ from django.contrib import messages
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
 from .forms import HifzForm, WordIndexForm, WordIndexFormSet
 
+from django.contrib.auth.decorators import login_required
+
+
 class IndexView(generic.ListView):
     template_name = 'qurandata/index.html'
     context_object_name = 'latest_quran_data'
 
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     def get_queryset(self):
-        hifz_list = Hifz.objects.order_by('surah_number').values('surah_number').distinct()
+        hifz_list = Hifz.objects.filter(hafiz=self.request.user).order_by('surah_number').values('surah_number').distinct()
         if len(hifz_list) == 0:
             return None
 
@@ -34,7 +40,7 @@ class AyatListView(generic.ListView):
     def get_queryset(self):
         # hifz = get_object_or_404(Hifz, pk=self.kwargs['pk'])
         # return Hifz.objects.filter(surah_number=hifz.surah_number)
-        hifz_list = Hifz.objects.filter(surah_number=self.kwargs['surah_number'])
+        hifz_list = Hifz.objects.filter(hafiz=self.request.user, surah_number=self.kwargs['surah_number'])
         for hifz in hifz_list:
             hifz.last_refreshed_period_string = hifz.get_last_refreshed_timelength()
 
@@ -77,13 +83,14 @@ class AyatListView(generic.ListView):
 #
 #         return render(request, "qurandata/enter.html")
 
+@login_required
 def enter(request):
 
     if request.method == 'GET':
         #TODO: need to set limiting on hifz form
         hifzform = HifzForm(request.GET or None)
         if request.GET.get('surah_number') and request.GET.get('ayat_number'):
-            data = return_ayat_details(request.GET['surah_number'], request.GET['ayat_number'])
+            data = return_ayat_details(request.user, request.GET['surah_number'], request.GET['ayat_number'])
 
             if data is None:
                 messages.warning(request,
@@ -150,7 +157,7 @@ def get_string_table_type_from_difficulty(level):
     if level == 2: return "table-primary"
     if level == 3: return "table-success"
 
-def return_ayat_details(surah_number, ayat_number):
+def return_ayat_details(user, surah_number, ayat_number):
     qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
     if len(qm) == 1:
         qm = qm[0]
@@ -165,7 +172,7 @@ def return_ayat_details(surah_number, ayat_number):
         form_meta["class-word-" + str(i)] = "word-" + str(i)
         display_meta.append("class-word-" + str(i))
 
-    hifz_query = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+    hifz_query = Hifz.objects.filter(hafiz=user, surah_number=surah_number, ayat_number=ayat_number)
 
     if hifz_query:
         wordindexset = hifz_query[0].wordindex_set.all()
@@ -186,7 +193,7 @@ def return_ayat_details(surah_number, ayat_number):
     return data
 
 def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty):
-    hifz = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
+    hifz = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
 
     if hifz:
         hifz = hifz[0]
@@ -215,9 +222,9 @@ def save_word_index_difficulty(request, surah_number, ayat_number, default_diffi
             # print("Creating new word indices")
             WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
 
-
+@login_required
 def detail(request, surah_number, ayat_number):
-    data = return_ayat_details(surah_number,ayat_number)
+    data = return_ayat_details(request.user, surah_number,ayat_number)
 
     if request.method == 'GET':
         # print(data)

@@ -4,4 +4,5 @@ from django.urls import include, path
 urlpatterns = [
     path('qurandata/', include('qurandata.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
