@@ -12,7 +12,12 @@
 	<div class="list-group">
 		<a class="list-group-item list-group-item-primary"><h2>Ayat List</h2></a>
     {% for hifz in ayat_list_for_surah %}
-        <a class="list-group-item list-group-item-action" href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</a>
+        <a class="list-group-item list-group-item-action " href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">
+            <p class="ml-2 mt-2 align-self-center" style="text-align:left;">
+                {{ hifz.ayat_number }}
+                <span style="float:right;"><small>{{ hifz.last_refreshed_period_string }}</small></span>
+            </p>
+        </a>
     {% endfor %}
     </div>
 

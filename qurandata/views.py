@@ -34,7 +34,12 @@ class AyatListView(generic.ListView):
     def get_queryset(self):
         # hifz = get_object_or_404(Hifz, pk=self.kwargs['pk'])
         # return Hifz.objects.filter(surah_number=hifz.surah_number)
-        return Hifz.objects.filter(surah_number=self.kwargs['surah_number']).values('surah_number', 'ayat_number').distinct()
+        hifz_list = Hifz.objects.filter(surah_number=self.kwargs['surah_number'])
+        for hifz in hifz_list:
+            hifz.last_refreshed_period_string = hifz.get_last_refreshed_timelength()
+
+        return hifz_list
+
 
 # def submit(request):
 #     if request.method == 'POST':

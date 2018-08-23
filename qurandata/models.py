@@ -1,8 +1,8 @@
 import datetime
-
 from django.db import models
 from enum import Enum
 from django.utils.translation import gettext_lazy as _
+from qurandata.helper import get_appropriate_timeunits_from_day
 
 class DifficultyChoice(Enum):   # A subclass of Enum
     EASY = 3
@@ -17,6 +17,14 @@ class Hifz(models.Model):
 
     def __str__(self):
         return "Surah number {} ayat number {} Last Refreshed on {}".format(self.surah_number, self.ayat_number, self.last_refreshed)
+
+    def get_last_refreshed_timelength(self):
+        now = datetime.date.today()
+        diff = now - self.last_refreshed
+        string = get_appropriate_timeunits_from_day(diff.days) + " ago"
+        return string
+
+
 
 class WordIndex(models.Model):
     hifz = models.ForeignKey(Hifz, on_delete=models.CASCADE)
