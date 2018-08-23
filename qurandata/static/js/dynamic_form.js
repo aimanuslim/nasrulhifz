@@ -35,14 +35,14 @@ $(document).ready(function(){
     $("#limit-button").click(function(){
         if(showingLimit){
             $('#ayat-mode-input').val('ayat_number')
-            $('#limit-forms').fadeOut(150);
-            $('#ayat-number-input').fadeIn(2000);
+            $('#limit-forms').hide();
+            $('#ayat-number-input').show();
             $("#limit-button").text('Enter limits')
             showingLimit = false
         } else{
             $('#ayat-mode-input').val('ayat_limit')
-            $('#limit-forms').fadeIn(2000);
-            $('#ayat-number-input').fadeOut(150);
+            $('#limit-forms').show();
+            $('#ayat-number-input').hide();
             $("#limit-button").text('Enter ayat')
             showingLimit = true
         }

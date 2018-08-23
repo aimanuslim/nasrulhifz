@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% load ayat_extras%}
 
+
+
 {% block content %}
+
+<div class="mb-4 text-align:left">
+     <button class="btn btn-dark" onclick="history.back(-1)">Back</button>
+  </div>
+
 <form method="POST">
 	{% csrf_token %}
 

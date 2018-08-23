@@ -15,6 +15,9 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         hifz_list = Hifz.objects.order_by('surah_number').values('surah_number').distinct()
+        if len(hifz_list) == 0:
+            return None
+
         surah_meta_list = []
         for hifz in hifz_list:
             surah_meta = SurahMeta.objects.filter(surah_number=int(hifz.get('surah_number')))
@@ -104,29 +107,33 @@ def enter(request):
         lower_bound = request.POST.get('min_range')
         upper_bound = request.POST.get('max_range')
         ayat_mode = request.POST.get('ayat-mode')
+        default_difficulty = request.POST.get('default_difficulty')
+        failed_saving = False
 
         if hifzform.is_valid():
             ayat_list = []
             if ayat_mode == 'ayat_number':
-                print("Doing ayat number")
                 ayat_list.append(ayat_number)
 
             if ayat_mode == 'ayat_limit':
-                print("Doing ayat limit")
-                for an in range(int(lower_bound), int(upper_bound)+ 1):
+               for an in range(int(lower_bound), int(upper_bound)+ 1):
                     ayat_list.append(an)
 
             ayat_limit = findMetaSurah(surah_number)
 
             for an in ayat_list:
                 if int(an) <= ayat_limit:
-                    save_word_index_difficulty(request, surah_number, an)
-                    message = 'Submission successful'
-                    messages.success(request, message, extra_tags='alert alert-success')
-                    # TODO: prevent duplicate messaging
+                    dd = 3
+                    if default_difficulty:
+                        dd = default_difficulty
+                    save_word_index_difficulty(request, surah_number, an, dd)
                 else:
                     message = "Ayat number {} exceeds limit for surah".format(an)
                     messages.warning(request, message, extra_tags='alert alert-danger')
+
+            if not failed_saving:
+                message = 'Submission successful'
+                messages.success(request, message, extra_tags='alert alert-success')
         else:
             message = "Ayat number exceeds limit for surah"
             messages.warning(request, message, extra_tags='alert alert-danger')
@@ -173,7 +180,7 @@ def return_ayat_details(surah_number, ayat_number):
     data = {'display_with_meta': display_with_meta, 'surah_name': surah_name}
     return data
 
-def save_word_index_difficulty(request, surah_number, ayat_number):
+def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty):
     hifz = Hifz.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
 
     if hifz:
@@ -190,7 +197,8 @@ def save_word_index_difficulty(request, surah_number, ayat_number):
 
     for i in range(0, len_wset):
         wordindex_difficulty = request.POST.get("class-word-" + str(i))
-        if not wordindex_difficulty: wordindex_difficulty = 3
+        if not wordindex_difficulty:
+            wordindex_difficulty = default_difficulty
 
         if wset:
             w = wset.filter(index=i)
