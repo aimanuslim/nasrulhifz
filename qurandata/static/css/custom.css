@@ -23,3 +23,14 @@
    margin-left: -150px;
    margin-top: -150px;
 }
+
+
+@font-face {
+  font-family: 'p458';
+  src: url('../fonts/p458.ttf')  format("truetype"),
+       local('p458');
+}
+
+.p458 {
+    font-family: p458;
+}
