@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="container h-100">
+<div class="container h-100 center-stuff justift-content-center">
 
 {% if form.errors %}
   <p>Your username and password didn't match. Please try again.</p>
@@ -18,17 +18,18 @@
   {% endif %}
 {% endif %}
 
+  <!--TODO: add banner-->
+
 <form method="post" action="{% url 'login' %}">
 {% csrf_token %}
 
-<div>
-  <td>{{ form.username.label_tag }}</td>
-  <td>{{ form.username }}</td>
-</div>
-<div>
-  <td>{{ form.password.label_tag }}</td>
-  <td>{{ form.password }}</td>
-</div>
+  <div class="form-group">
+    <input placeholder="username" type="text" class="form-control custom-size" id="id_username" name="username">
+  </div>
+  <div class="form-group">
+    <input placeholder="password" type="password" class="form-control custom-size" id="id_password" name="password">
+  </div>
+
 
 <div>
   <button class="btn btn-primary" type="submit" value="login">Login</button>
@@ -37,7 +38,7 @@
 </form>
 
 {# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<p class="mt-2"><a href="{% url 'password_reset' %}">Lost password?</a></p>
 
 </div>
 

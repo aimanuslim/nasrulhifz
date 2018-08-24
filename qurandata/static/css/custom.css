@@ -13,5 +13,13 @@
 }
 
 .custom-size {
-	width: 500px !important;
+	width: 300px !important;
+}
+
+.center-stuff {
+   position: absolute;
+   left: 45%;
+   top: 50%;
+   margin-left: -150px;
+   margin-top: -150px;
 }
