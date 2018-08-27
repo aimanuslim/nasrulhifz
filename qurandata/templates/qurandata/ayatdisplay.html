@@ -2,7 +2,7 @@
 
 
 <div class="text-center">
-    <button type="button" class="btn btn-light"><h2>{{ surah_name }}</h2></button>
+    <button type="button" class="btn btn-light"><h2 class="uthm2">{{ surah_name }}</h2></button>
 
 </div>
 
@@ -15,7 +15,7 @@
             {% for wordb, metab in display_with_meta|batch:10 %}
             <tr>
                 {% for word in wordb %}
-                <td><b class="p458">{{ word }}</b></td>
+                <td><b class="uthm2">{{ word }}</b></td>
                 {% endfor %}
             </tr>
             <tr>

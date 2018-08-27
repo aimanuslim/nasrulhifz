@@ -3,11 +3,13 @@ from django.shortcuts import render
 from django.views import generic
 
 from django.contrib import messages
+import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
-from .forms import HifzForm, WordIndexForm, WordIndexFormSet
+from .forms import HifzForm
 
 from django.contrib.auth.decorators import login_required
+import random
 
 
 class IndexView(generic.ListView):
@@ -25,9 +27,7 @@ class IndexView(generic.ListView):
 
         surah_meta_list = []
         for hifz in hifz_list:
-            surah_meta = SurahMeta.objects.filter(surah_number=int(hifz.get('surah_number')))
-            surah_meta = surah_meta[0]
-            surah_meta_list.append(surah_meta.name_string)
+            surah_meta_list.append(getSurahString(hifz.surah_number))
 
         data = zip(hifz_list, surah_meta_list)
         return data
@@ -127,7 +127,64 @@ def enter(request):
 
 @login_required
 def revise(request):
-    pass
+    if request.method == 'GET':
+        return render(request, "qurandata/revise.html", {'mode_select': "true"})
+
+    if request.method == 'POST':
+        if request.POST.get('mode-select') and request.POST.get('streak-length'):
+            streak_length = int(request.POST.get('streak-length'))
+            mode = request.POST.get('mode-select')
+            unit_number= int(request.POST.get('unit-number'))
+
+            if mode == 'juz_mode':
+                hifz_to_revise = Hifz.objects.filter(juz_number=unit_number)[:streak_length]
+            if mode == 'surah_mode':
+                hifz_to_revise = Hifz.objects.filter(surah_number=unit_number)[:streak_length]
+
+
+            revision_cards = []
+            for hifz in hifz_to_revise:
+                revision_strings = []
+                wordindexes = hifz.wordindex_set.all()
+                show_word = [True for i in range(len(wordindexes))]
+
+
+                indices = random.sample(range(len(wordindexes)), 7)
+                for i in indices:
+                    show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
+
+                # for wi in np.random.permutation(wordindexes)[:5]:
+                #     show_word.append(decide_show_or_hidden(wi.difficulty))
+
+                qm = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number)
+                ays = qm[0].ayat_string
+                ays = ays.split(" ")
+                revision_strings = qm[0].ayat_string.split(" ")
+
+                hifz_meta = {'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number}
+                revision_card = [(string, shown_status) for string, shown_status in zip(revision_strings, show_word)]
+                # print("RC {}".format(revision_card))
+
+                revision_cards.append([hifz_meta, revision_card])
+
+            # print(revision_cards)
+            return render(request, 'qurandata/revise.html', {'revision_cards': revision_cards})
+
+
+
+def decide_show_or_hidden(difficulty):
+    prob = random.uniform(0, 1)
+
+    if difficulty < 4:
+        if prob < 0.5:
+            return True
+        else:
+            return False
+    else:
+        return True
+
+
+
 
 def get_string_table_type_from_difficulty(level):
     if level == 1: return "table-danger"
@@ -178,7 +235,8 @@ def save_word_index_difficulty(request, surah_number, ayat_number, default_diffi
         wset = hifz.wordindex_set.all()
         len_wset = len(wset)
     else:
-        hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
+        juz_number = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].juz_number
+        hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number, juz_number=juz_number)
         hifz.save()
         qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
         qm = qm[0]
@@ -214,3 +272,8 @@ def findMetaAyat(surah_number, ayat_number):
 def findMetaSurah(surah_number):
     ayat_limit = len(QuranMeta.objects.filter(surah_number=surah_number))
     return ayat_limit
+
+def getSurahString(surah_number):
+    sm = SurahMeta.objects.filter(surah_number=surah_number)
+    sm = sm[0]
+    return sm.name_string

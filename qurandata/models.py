@@ -16,7 +16,7 @@ class Hifz(models.Model):
     surah_number = models.SmallIntegerField()
     ayat_number = models.SmallIntegerField()
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
-
+    juz_number = models.SmallIntegerField()
 
 
     def __str__(self):

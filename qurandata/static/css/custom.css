@@ -26,11 +26,37 @@
 
 
 @font-face {
-  font-family: 'p458';
-  src: url('../fonts/p458.ttf')  format("truetype"),
-       local('p458');
+  font-family: 'me_quran';
+  src: url('../fonts/me_quran.ttf')  format("truetype"),
+       local('me_quran');
 }
 
-.p458 {
-    font-family: p458;
+
+.me_quran {
+    font-family: me_quran;
+    font-size: 20px;
+}
+
+@font-face {
+  font-family: 'uthm';
+  src: url('../fonts/uthm.ttf')  format("truetype"),
+       local('uthm');
+}
+
+
+.uthm {
+    font-family: uthm;
+    font-size: 35px;
+}
+
+@font-face {
+  font-family: 'uthm2';
+  src: url('../fonts/uthm2.otf')  format("opentype"),
+       local('uthm2');
+}
+
+
+.uthm2 {
+    font-family: uthm2;
+    font-size: 28px;
 }
