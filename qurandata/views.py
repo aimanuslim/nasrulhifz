@@ -7,6 +7,7 @@ import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
 from .forms import HifzForm
+from numpy import take
 
 from django.contrib.auth.decorators import login_required
 import random
@@ -136,39 +137,78 @@ def revise(request):
             mode = request.POST.get('mode-select')
             unit_number= int(request.POST.get('unit-number'))
 
-            if mode == 'juz_mode':
-                hifz_to_revise = Hifz.objects.filter(juz_number=unit_number)[:streak_length]
-            if mode == 'surah_mode':
-                hifz_to_revise = Hifz.objects.filter(surah_number=unit_number)[:streak_length]
 
+            if mode == 'juz_mode':
+                hifz_to_revise = Hifz.objects.filter(juz_number=unit_number)
+            if mode == 'surah_mode':
+                hifz_to_revise = Hifz.objects.filter(surah_number=unit_number)
+
+            hifz_random_indices = random.sample(range(len(hifz_to_revise)), streak_length)
+
+            hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
             revision_cards = []
             for hifz in hifz_to_revise:
+
                 revision_strings = []
                 wordindexes = hifz.wordindex_set.all()
+
+                # set all words to be visible
                 show_word = [True for i in range(len(wordindexes))]
 
 
-                indices = random.sample(range(len(wordindexes)), 7)
+                number_of_words_to_be_shown_or_hidden = 7
+                # only hide random words in the ayat
+                indices = random.sample(range(len(wordindexes)) if len(wordindexes) > number_of_words_to_be_shown_or_hidden else number_of_words_to_be_shown_or_hidden, number_of_words_to_be_shown_or_hidden)
                 for i in indices:
                     show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
 
-                # for wi in np.random.permutation(wordindexes)[:5]:
-                #     show_word.append(decide_show_or_hidden(wi.difficulty))
 
+                # find the string for the ayat
                 qm = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number)
                 ays = qm[0].ayat_string
                 ays = ays.split(" ")
                 revision_strings = qm[0].ayat_string.split(" ")
 
+
+                # get information about the ayat
                 hifz_meta = {'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number}
+
+
+                # get strings and show/hide information for ayat before and after
+                ayatBeforeExist, ayatAfterExist = False,False
+                if hifz.ayat_number > 1:
+                    ayatBeforeExist = True
+                    ayatBeforeQM = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number - 1)
+                    ayatBeforeCard = [(string, True) for string in ayatBeforeQM[0].ayat_string.split(" ")]
+                    ayatBeforeMeta = {'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number - 1}
+
+                if hifz.ayat_number < findMetaSurah(hifz.surah_number):
+                    ayatAfterExist = True
+                    ayatAfterQM = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number + 1)
+                    ayatAfterCard = [(string, True) for string in ayatAfterQM[0].ayat_string.split(" ")]
+                    ayatAfterMeta = {'surah_name': getSurahString(hifz.surah_number),
+                                      'ayat_number': hifz.ayat_number + 1}
+
+
+
+
+                # gather data in a card
                 revision_card = [(string, shown_status) for string, shown_status in zip(revision_strings, show_word)]
                 # print("RC {}".format(revision_card))
 
-                revision_cards.append([hifz_meta, revision_card])
+                StringMetaSet = []
+                if ayatBeforeExist: StringMetaSet.append([ayatBeforeMeta, ayatBeforeCard])
+                StringMetaSet.append([hifz_meta, revision_card])
+                if ayatAfterExist: StringMetaSet.append([ayatAfterMeta, ayatAfterCard])
+
+                allCardsToDisplay = (hifz_meta, StringMetaSet)
+
+                revision_cards.append(allCardsToDisplay)
 
             # print(revision_cards)
             return render(request, 'qurandata/revise.html', {'revision_cards': revision_cards})
+
 
 
 

@@ -45,10 +45,21 @@
 {% if revision_cards %}
 <div id="revise_carousel" class="carousel slide" data-ride="carousel" data-interval="0">
 
+
+    <div class="row justify-content-center align-items-center">
+        <button class="mx-5 my-2 btn btn-success custom-carousel-button" href="#revise_carousel" data-slide="prev" type="button">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <!-- Left and right controls -->
+        <button class="mx-5 my-2 btn btn-success custom-carousel-button" href="#revise_carousel" data-slide="next" type="button">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
     <!-- The slideshow -->
     <div class="carousel-inner">
 
-        {% for hifzinfo, card in revision_cards %}
+        {% for hifzinfo, cardSet in revision_cards %}
             {% if forloop.first %}
                 <div class="carousel-item active">
             {% else %}
@@ -63,13 +74,8 @@
         </div>
     </div>
 
-        <!-- Left and right controls -->
-        <a class="carousel-control-prev" href="#revise_carousel" data-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </a>
-        <a class="carousel-control-next" href="#revise_carousel" data-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </a>
+
+
 
 </div>
 

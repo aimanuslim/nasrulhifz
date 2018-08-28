@@ -1,20 +1,21 @@
-<div class="text-center">
-    <button type="button" class="btn btn-light"><p class="uthm2">{{ hifzinfo.surah_name }}</p></button>
-
-</div>
-<div class="text-center">
-<button type="button" class="btn btn-light"><p class="uthm2">{{ hifzinfo.ayat_number }}</p></button>
+<div class="text-center my-4">
+    <button type="button" class="label-button btn btn-light"><p class="uthm2">{{ hifzinfo.surah_name }}</p></button>
+    <button type="button" class="label-button btn btn-light">{{ hifzinfo.ayat_number }}</button>
 </div>
 
 <p class="uthm2 text-center" dir="rtl">
 
 
-{% for word, meta in card %}
-    {% if meta %}
-        {{ word }}
-    {% else %}
-        ____
-    {% endif %}
+{% for metaHifz, stringsAndSMeta in cardSet %}
+    {% for word, metaShown in stringsAndSMeta %}
+            {% if metaShown %}
+                {{ word }}
+            {% else %}
+                ____
+            {% endif %}
+        {% endfor %}
+    <b class="ayat-mark btn btn-light"> {{ metaHifz.ayat_number }} </b>
 {% endfor %}
+
 
 </p>

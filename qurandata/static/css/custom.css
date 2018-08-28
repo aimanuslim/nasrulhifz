@@ -12,6 +12,15 @@
 	width: 200px !important;
 }
 
+.custom-carousel-button {
+    height: 50px !important;
+    width: 200px !important;
+}
+
+.label-button {
+    height: 60px !important;
+}
+
 .custom-size {
 	width: 300px !important;
 }
@@ -24,6 +33,10 @@
    margin-top: -150px;
 }
 
+
+.ayat-mark {
+    border-radius: 15px !important;
+}
 
 @font-face {
   font-family: 'me_quran';
