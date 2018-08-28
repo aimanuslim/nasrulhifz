@@ -11,7 +11,8 @@
             {% if metaShown %}
                 {{ word }}
             {% else %}
-                ____
+                <span class="hidden-word" type="hidden">{{ word }}</span>
+    <span class="blank-lines">____</span>
             {% endif %}
         {% endfor %}
     <b class="ayat-mark btn btn-light"> {{ metaHifz.ayat_number }} </b>

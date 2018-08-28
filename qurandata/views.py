@@ -28,7 +28,7 @@ class IndexView(generic.ListView):
 
         surah_meta_list = []
         for hifz in hifz_list:
-            surah_meta_list.append(getSurahString(hifz.surah_number))
+            surah_meta_list.append(getSurahString(hifz.get('surah_number')))
 
         data = zip(hifz_list, surah_meta_list)
         return data
@@ -143,7 +143,7 @@ def revise(request):
             if mode == 'surah_mode':
                 hifz_to_revise = Hifz.objects.filter(surah_number=unit_number)
 
-            hifz_random_indices = random.sample(range(len(hifz_to_revise)), streak_length)
+            hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(len(streak_length)), streak_length)
 
             hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
@@ -159,7 +159,8 @@ def revise(request):
 
                 number_of_words_to_be_shown_or_hidden = 7
                 # only hide random words in the ayat
-                indices = random.sample(range(len(wordindexes)) if len(wordindexes) > number_of_words_to_be_shown_or_hidden else number_of_words_to_be_shown_or_hidden, number_of_words_to_be_shown_or_hidden)
+                indices = random.sample(range(len(wordindexes)) if len(wordindexes) >= number_of_words_to_be_shown_or_hidden else range(len(number_of_words_to_be_shown_or_hidden)), number_of_words_to_be_shown_or_hidden)
+
                 for i in indices:
                     show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
 

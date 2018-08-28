@@ -1,6 +1,7 @@
 var idx = 1
 
 var showingLimit = false
+var wordShown = false
 
 $(document).ready(function(){
 
@@ -31,6 +32,21 @@ $(document).ready(function(){
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'juz_mode'){
             $('#unit-number').attr('placeholder', "Juz Number")
         }
+    })
+
+    $("#show-ayat-button").click(function(){
+        if(wordShown){
+            $(".hidden-word").hide();
+            $(".blank-lines").show();
+            $(this).text('Show Words')
+            wordShown = false
+        } else {
+            $(".hidden-word").show();
+            $(".blank-lines").hide();
+            $(this).text('Hide Words')
+            wordShown = true
+        }
+
     })
 
 
