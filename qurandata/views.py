@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.views import generic
 
@@ -11,6 +11,8 @@ from numpy import take
 
 from django.contrib.auth.decorators import login_required
 import random
+from datetime import date
+
 
 
 class IndexView(generic.ListView):
@@ -80,7 +82,7 @@ def enter(request):
                 return HttpResponseRedirect('')
             else:
                 data['hifzform'] = hifzform
-                print(data)
+                # print(data)
 
                 return render(request, 'qurandata/enter.html', data)
         else:
@@ -132,6 +134,21 @@ def revise(request):
         return render(request, "qurandata/revise.html", {'mode_select': "true"})
 
     if request.method == 'POST':
+        # TODO: make it so that we can hide the whole ayat
+        if request.POST.get('hifz_was_refreshed') == 'true':
+            surah_number = request.POST.get('surah_number')
+            ayat_number = request.POST.get('ayat_number')
+            # print(ayat_number)
+            h = Hifz.objects.filter(hafiz=request.user, surah_number=int(surah_number), ayat_number=int(ayat_number))
+
+            if len(h) > 0:
+                h = h[0]
+                h.last_refreshed = date.today()
+                h.save()
+                return render(request, 'qurandata/revise.html')
+            else:
+                raise Http404()
+
         if request.POST.get('mode-select') and request.POST.get('streak-length'):
             streak_length = int(request.POST.get('streak-length'))
             mode = request.POST.get('mode-select')
@@ -139,11 +156,11 @@ def revise(request):
 
 
             if mode == 'juz_mode':
-                hifz_to_revise = Hifz.objects.filter(juz_number=unit_number)
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, juz_number=unit_number)
             if mode == 'surah_mode':
-                hifz_to_revise = Hifz.objects.filter(surah_number=unit_number)
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, surah_number=unit_number)
 
-            hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(len(streak_length)), streak_length)
+            hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length), streak_length)
 
             hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
@@ -159,7 +176,11 @@ def revise(request):
 
                 number_of_words_to_be_shown_or_hidden = 7
                 # only hide random words in the ayat
-                indices = random.sample(range(len(wordindexes)) if len(wordindexes) >= number_of_words_to_be_shown_or_hidden else range(len(number_of_words_to_be_shown_or_hidden)), number_of_words_to_be_shown_or_hidden)
+                if len(wordindexes) >= number_of_words_to_be_shown_or_hidden:
+                    indices = random.sample(range(len(wordindexes)), number_of_words_to_be_shown_or_hidden)
+                else:
+                    indices = random.sample(range(len(wordindexes)), len(wordindexes))
+                # indices = random.sample(range(len(wordindexes)) if len(wordindexes) >= number_of_words_to_be_shown_or_hidden else range(number_of_words_to_be_shown_or_hidden), number_of_words_to_be_shown_or_hidden)
 
                 for i in indices:
                     show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
@@ -173,7 +194,7 @@ def revise(request):
 
 
                 # get information about the ayat
-                hifz_meta = {'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number}
+                hifz_meta = {'surah_number': hifz.surah_number, 'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number}
 
 
                 # get strings and show/hide information for ayat before and after
@@ -209,6 +230,7 @@ def revise(request):
 
             # print(revision_cards)
             return render(request, 'qurandata/revise.html', {'revision_cards': revision_cards})
+        return render(request, 'qurandata/revise.html')
 
 
 
@@ -238,7 +260,7 @@ def return_ayat_details(user, surah_number, ayat_number):
     if len(qm) == 1:
         qm = qm[0]
     else:
-        print("Returning none")
+        # print("Returning none")
         return None
 
     to_display = qm.ayat_string.split(" ")

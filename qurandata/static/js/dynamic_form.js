@@ -24,7 +24,6 @@ $(document).ready(function(){
     });
 
     $('#reviseParameters input').on('change', function(){
-        console.log($('input[name=mode-select]:checked', '#reviseParameters').attr('id'))
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'surah_mode'){
             $('#unit-number').attr('placeholder', "Surah Number")
         }
@@ -48,6 +47,39 @@ $(document).ready(function(){
         }
 
     })
+
+    $(".custom-carousel-button").click(function(){
+        var refreshedForm = $('#refreshed-checkbox-form')
+        var surah_number = $('.active #surah-number').text()
+        var ayat_number = $('.active #ayat-number').text()
+//        console.log(surah_number)
+//        console.log(ayat_number)
+        var isChecked = $("#refreshed-checkbox").is(':checked')
+
+        var token =  $('input[name="csrfmiddlewaretoken"]').attr('value')
+        var data = {}
+        data['surah_number'] = surah_number
+        data['ayat_number'] = ayat_number
+        data['hifz_was_refreshed'] = isChecked
+        data['csrfmiddlewaretoken'] = token
+
+        // Send the data using post
+        var posting = $.post( refreshedForm.attr('action'), data );
+
+        // if success:
+        posting.done(function(data) {
+            // success actions, maybe change submit button to 'friend added' or whatever
+        });
+        // if failure:
+        posting.fail(function(data) {
+            // 4xx or 5xx response, alert user about failure
+        });
+
+        $("#refreshed-checkbox").prop('checked', false)
+    });
+
+
+
 
 
 
