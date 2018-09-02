@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.views import generic
 
@@ -69,8 +69,15 @@ def detail(request, surah_number, ayat_number):
 @login_required
 def enter(request):
     if request.method == 'GET':
-        # TODO: need to set limiting on hifz form
+        # TODO: what forms should do if posted with invalid values
         hifzform = HifzForm(request.GET or None)
+        print("Check limits {}".format(request.GET.get('change_limits')))
+        if request.GET.get('change_limits'):
+            surah_number = request.GET.get('surah_number')
+            surah_limit = findMetaSurah(surah_number)
+            print("Here")
+            return JsonResponse({'surah_limit': surah_limit})
+
         if request.GET.get('surah_number') and request.GET.get('ayat_number'):
             data = return_ayat_details(request.user, request.GET['surah_number'], request.GET['ayat_number'])
 
@@ -81,6 +88,7 @@ def enter(request):
                 print("Data none")
                 return HttpResponseRedirect('')
             else:
+
                 data['hifzform'] = hifzform
                 # print(data)
 

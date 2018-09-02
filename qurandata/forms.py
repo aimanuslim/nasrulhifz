@@ -5,7 +5,8 @@ class HifzForm(forms.Form) :
     surah_number = forms.IntegerField(min_value=1, max_value=114, widget=forms.NumberInput(attrs={
             'class': 'form-control form-control-lg',
             'placeholder': 'Surah Number',
-            'name': 'surah_number'
+            'name': 'surah_number',
+            'id': 'surah-number-form'
         }))
     ayat_number = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
             'class': 'form-control form-control-lg',

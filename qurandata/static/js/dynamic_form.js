@@ -48,6 +48,16 @@ $(document).ready(function(){
 
     })
 
+    $('#surah-number-form').focusout(function(){
+        var surah_number = $(this).val()
+        console.log(surah_number)
+        $.get("", {'surah_number': surah_number, 'change_limits': 'true'}, function(data){
+            console.log(data)
+            $('#ayat-number-input').attr('max', data['surah_limit'])
+        })
+
+    });
+
     $(".custom-carousel-button").click(function(){
         var refreshedForm = $('#refreshed-checkbox-form')
         var surah_number = $('.active #surah-number').text()
