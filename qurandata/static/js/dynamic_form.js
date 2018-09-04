@@ -11,13 +11,22 @@ $(document).ready(function(){
         if(showingLimit){
             $('#ayat-mode-input').val('ayat_number')
             $('#limit-forms').hide();
+
+            $('#min-limit-input').val('');
+            $('#max-limit-input').val('');
+
             $('#ayat-number-input').show();
             $("#limit-button").text('Enter limits')
+            $('#display-button').show()
             showingLimit = false
         } else{
             $('#ayat-mode-input').val('ayat_limit')
             $('#limit-forms').show();
             $('#ayat-number-input').hide();
+            $('#display-button').hide()
+
+            $('#ayat-number-input').val('');
+
             $("#limit-button").text('Enter ayat')
             showingLimit = true
         }
@@ -54,6 +63,8 @@ $(document).ready(function(){
         $.get("", {'surah_number': surah_number, 'change_limits': 'true'}, function(data){
             console.log(data)
             $('#ayat-number-input').attr('max', data['surah_limit'])
+            $('#min-limit-input').attr('max', data['surah_limit'])
+            $('#max-limit-input').attr('max', data['surah_limit'])
         })
 
     });

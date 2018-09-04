@@ -18,20 +18,16 @@ class HifzForm(forms.Form) :
     min_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
             'class': 'form-control form-control-lg',
             'placeholder': 'Lower Bound',
-            'name': 'lower_bound'
+            'name': 'lower_bound',
+            'id': 'min-limit-input',
         }), required=False)
 
     max_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
             'class': 'form-control form-control-lg',
             'placeholder': 'Upper Bound',
-            'name': 'upper_bound'
+            'name': 'upper_bound',
+            'id': 'max-limit-input',
         }), required=False)
-
-
-
-
-
-
 
 
 class WordIndexForm(forms.Form):

@@ -71,11 +71,11 @@ def enter(request):
     if request.method == 'GET':
         # TODO: what forms should do if posted with invalid values
         hifzform = HifzForm(request.GET or None)
-        print("Check limits {}".format(request.GET.get('change_limits')))
+        # print("Check limits {}".format(request.GET.get('change_limits')))
         if request.GET.get('change_limits'):
             surah_number = request.GET.get('surah_number')
             surah_limit = findMetaSurah(surah_number)
-            print("Here")
+            # print("Here")
             return JsonResponse({'surah_limit': surah_limit})
 
         if request.GET.get('surah_number') and request.GET.get('ayat_number'):
@@ -85,7 +85,7 @@ def enter(request):
                 messages.warning(request,
                                  "Quran String was not found (due to execeeding ayat)",
                                  extra_tags="alert alert-danger")
-                print("Data none")
+                # print("Data none")
                 return HttpResponseRedirect('')
             else:
 
@@ -280,13 +280,16 @@ def return_ayat_details(user, surah_number, ayat_number):
 
     hifz_query = Hifz.objects.filter(hafiz=user, surah_number=surah_number, ayat_number=ayat_number)
 
+    hifz_exists = None
     if hifz_query:
         wordindexset = hifz_query[0].wordindex_set.all()
         tablecolorset = [get_string_table_type_from_difficulty(w.difficulty) for w in wordindexset]
         wordindexsetdifficulties = [w.difficulty for w in wordindexset]
+        hifz_exists = True
     else:
         tablecolorset = [get_string_table_type_from_difficulty(3) for w in range(0, len(to_display))]
         wordindexsetdifficulties = [3 for w in range(0, len(to_display))]
+        hifz_exists = None
 
     display_with_meta = (to_display, display_meta, tablecolorset, wordindexsetdifficulties)
 
@@ -294,7 +297,7 @@ def return_ayat_details(user, surah_number, ayat_number):
     sm = sm[0]
     surah_name = sm.name_string
 
-    data = {'display_with_meta': display_with_meta, 'surah_name': surah_name}
+    data = {'display_with_meta': display_with_meta, 'surah_name': surah_name, 'hifz_exists': hifz_exists}
     return data
 
 

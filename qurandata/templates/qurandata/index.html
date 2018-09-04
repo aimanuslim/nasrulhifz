@@ -5,7 +5,7 @@
 	<div class="list-group">
 		<a class="list-group-item list-group-item-primary text-center"><h2>Surah List</h2></a>
     {% for hifz, surah_name in latest_quran_data %}
-        <a class="list-group-item list-group-item-action " href="{% url 'qurandata:ayatlist' hifz.surah_number %}"><p class="text-right">{{ surah_name }}</p></a>
+        <a class="list-group-item list-group-item-action " href="{% url 'qurandata:ayatlist' hifz.surah_number %}"><p class="text-right uthm2"><b>{{ surah_name }}</b></p></a>
     {% endfor %}
     </div>
 {% else %}

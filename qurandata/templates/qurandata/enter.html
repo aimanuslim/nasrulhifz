@@ -57,7 +57,11 @@
 
   <div class="d-flex justify-content-center">
   		<button id="submit-button" class="btn-success custom-submit btn" type="submit" formmethod="post">
-  			Submit
+			{% if not hifz_exists %}
+				Submit
+			{% else %}
+				Update
+			{% endif %}
   		</button>
   </div>
 
