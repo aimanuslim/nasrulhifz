@@ -11,7 +11,7 @@
 
 <form id="reviseParameters" action="{% url 'qurandata:revise' %}" method="POST">
     {% csrf_token %}
-    <div class="row justify-content-center">
+    <div class="my-4 row justify-content-center">
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <label class="btn btn-primary active">
                 <input type="radio" name="mode-select" id="juz_mode" value="juz_mode" autocomplete="off" checked> Juz Mode
@@ -43,7 +43,7 @@
 {% endif %}
 
 
-{% if revision_cards %}
+{% if revision_cards and revision_cards|length > 1 %}
 <div id="revise_carousel" class="carousel slide" data-ride="carousel" data-interval="0">
 
 
@@ -98,8 +98,15 @@
 
 
 
+
+
 {% endif %}
 
+{% if not revision_cards and not mode_select %}
+
+<h1>No hifz matches those criteria.</h1>
+
+{% endif %}
 
 
 

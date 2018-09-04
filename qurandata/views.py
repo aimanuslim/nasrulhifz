@@ -69,7 +69,6 @@ def detail(request, surah_number, ayat_number):
 @login_required
 def enter(request):
     if request.method == 'GET':
-        # TODO: what forms should do if posted with invalid values
         hifzform = HifzForm(request.GET or None)
         # print("Check limits {}".format(request.GET.get('change_limits')))
         if request.GET.get('change_limits'):
@@ -170,7 +169,9 @@ def revise(request):
 
             hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length), streak_length)
 
-            hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
+            if len(hifz_to_revise) > 1:
+                hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
+
 
             revision_cards = []
             for hifz in hifz_to_revise:
