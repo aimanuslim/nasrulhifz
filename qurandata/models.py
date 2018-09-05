@@ -28,6 +28,15 @@ class Hifz(models.Model):
         string = get_appropriate_timeunits_from_day(diff.days) + " ago"
         return string
 
+    def get_number_of_days_since_refreshed(self):
+        now = datetime.date.today()
+        diff = now - self.last_refreshed
+        return diff.days
+    def get_hifz_average_difficulty(self):
+        wset = self.wordindex_set.all()
+        return sum(w.difficulty  for w in wset) / len(wset)
+
+
 
 
 class WordIndex(models.Model):

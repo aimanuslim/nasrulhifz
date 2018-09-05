@@ -46,6 +46,8 @@ class AyatListView(generic.ListView):
         hifz_list = Hifz.objects.filter(hafiz=self.request.user, surah_number=self.kwargs['surah_number'])
         for hifz in hifz_list:
             hifz.last_refreshed_period_string = hifz.get_last_refreshed_timelength()
+            hifz.days_since_last_refreshed = hifz.get_number_of_days_since_refreshed()
+            hifz.average_difficulty = "{0:.2f}".format(hifz.get_hifz_average_difficulty())
 
         return hifz_list
 
@@ -298,11 +300,15 @@ def return_ayat_details(user, surah_number, ayat_number):
     sm = sm[0]
     surah_name = sm.name_string
 
-    data = {'display_with_meta': display_with_meta, 'surah_name': surah_name, 'hifz_exists': hifz_exists}
+    data = {'display_with_meta': display_with_meta,
+            'surah_name': surah_name,
+            'hifz_exists': hifz_exists,
+            'surah_number' : surah_number
+            }
     return data
 
 
-def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty):
+def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty=3):
     hifz = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
 
     if hifz:

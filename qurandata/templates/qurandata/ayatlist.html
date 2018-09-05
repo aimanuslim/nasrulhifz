@@ -3,25 +3,38 @@
 
 {% block content %}
     <div class="mb-4 text-align:left">
-     <button class="btn btn-dark" onclick="history.back(-1)">Back</button>
+     <button class="btn btn-dark" onclick="GoBackWithRefresh();return false;">Back</button>
   </div>
+
+
+    <input class="form-control my-4 " type="text" id="filter-input" onkeyup="filterTable()" placeholder="Search..">
 
 {% if ayat_list_for_surah %}
 	
 
-	<div class="list-group">
-		<a class="list-group-item list-group-item-primary"><h2>Ayat List</h2></a>
-    {% for hifz in ayat_list_for_surah %}
-        <a class="list-group-item list-group-item-action " href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">
-            <p class="ml-2 mt-2 align-self-center" style="text-align:left;">
-                {{ hifz.ayat_number }}
-                <span style="float:right;"><small>{{ hifz.last_refreshed_period_string }}</small></span>
-            </p>
-        </a>
-    {% endfor %}
-    </div>
+    <table id="ayat-list-table"  class="table table-striped table-bordered table-hover" style="width:100%">
+        <thead>
 
-	
+            <tr>
+                <th style="text-align:center">Ayat Number</th>
+                <th style="text-align:center">Average Difficulty</th>
+                <th style="text-align:center">Last Time Refreshed</th>
+            </tr>
+        </thead>
+        <tbody data-link="row" class="rowlink">
+            {% for hifz in ayat_list_for_surah %}
+                <tr class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">
+                    <td align="center">{{ hifz.ayat_number }}</td>
+                    <td align="center">{{ hifz.average_difficulty }}</td>
+                    <td align="center">{{ hifz.days_since_last_refreshed }} days</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+
+    </table>
+
+
 {%  else %}
 	<p>No ayats are available.</p>
 {% endif %}
