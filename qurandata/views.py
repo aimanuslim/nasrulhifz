@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.views import generic
+from django.urls import reverse_lazy
 
 from django.contrib import messages
 import random
@@ -12,6 +13,23 @@ from numpy import take
 from django.contrib.auth.decorators import login_required
 import random
 from datetime import date
+
+from django.contrib.auth.forms import UserCreationForm
+from .forms import CustomUserCreationForm
+
+class SignUp(generic.CreateView):
+    # form_class = UserCreationForm
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
+
+
+
+    def form_valid(self, form):
+        messages.success(self.request, "You are registered! Please enter your login details to continue.",extra_tags='alert alert-success custom-size')
+        return super().form_valid(form)
+
+
 
 
 

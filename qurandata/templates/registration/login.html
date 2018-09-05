@@ -3,7 +3,7 @@
 
 {% block navs %}
 
-<div class="container h-100 center-stuff justift-content-center">
+<div class="container h-100 center-stuff justify-content-center">
 
 {% if form.errors %}
   <p>Your username and password didn't match. Please try again.</p>
@@ -18,16 +18,24 @@
   {% endif %}
 {% endif %}
 
+  {% if messages %}
+  {% for message in messages %}
+  <div class="{{message.tags}}">
+                    {{ message }}
+  </div>
+            {% endfor %}
+  {% endif %}
+
   <!--TODO: add banner-->
 
 <form method="post" action="{% url 'login' %}">
 {% csrf_token %}
 
   <div class="form-group">
-    <input placeholder="username" type="text" class="form-control custom-size" id="id_username" name="username">
+    <input placeholder="Username" type="text" class="form-control custom-size" id="id_username" name="username">
   </div>
   <div class="form-group">
-    <input placeholder="password" type="password" class="form-control custom-size" id="id_password" name="password">
+    <input placeholder="Password" type="password" class="form-control custom-size" id="id_password" name="password">
   </div>
 
 
@@ -39,6 +47,7 @@
 
 {# Assumes you setup the password_reset view in your URLconf #}
 <p class="mt-2"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+  <p class="my-2"><a href="{% url 'signup' %}">Register</a></p>
 
 </div>
 
