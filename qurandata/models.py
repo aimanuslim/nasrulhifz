@@ -19,6 +19,12 @@ class Hifz(models.Model):
     juz_number = models.SmallIntegerField()
 
 
+    def __init__(self,*args, **kwargs):
+        super(Hifz, self).__init__(*args, **kwargs)
+        if not self.juz_number:
+            self.find_juz_number()
+
+
     def __str__(self):
         return "Surah number {} ayat number {} Last Refreshed on {} user {}".format(self.surah_number, self.ayat_number, self.last_refreshed, self.hafiz)
 
@@ -36,7 +42,16 @@ class Hifz(models.Model):
         wset = self.wordindex_set.all()
         return sum(w.difficulty  for w in wset) / len(wset)
 
+    def find_juz_number(self):
+        res  =  QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
+        self.juz_number = res[0].juz_number
 
+    def store_difficulties(self, difficulty=3):
+        qm = QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
+        wordindexlength = len(qm[0].ayat_string.split(" "))
+        for i in range(wordindexlength):
+            w = WordIndex.objects.create(hifz=self, index=i, difficulty=difficulty)
+            w.save()
 
 
 class WordIndex(models.Model):

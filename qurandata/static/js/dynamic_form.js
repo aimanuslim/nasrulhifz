@@ -34,11 +34,17 @@ $(document).ready(function(){
 
     $('#reviseParameters input').on('change', function(){
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'surah_mode'){
+            $('#unit-number').attr('disabled', false)
             $('#unit-number').attr('placeholder', "Surah Number")
         }
 
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'juz_mode'){
+            $('#unit-number').attr('disabled', false)
             $('#unit-number').attr('placeholder', "Juz Number")
+        }
+
+        if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'free_mode'){
+            $('#unit-number').attr('disabled', true)
         }
     })
 

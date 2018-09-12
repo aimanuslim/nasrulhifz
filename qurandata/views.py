@@ -179,13 +179,18 @@ def revise(request):
         if request.POST.get('mode-select') and request.POST.get('streak-length'):
             streak_length = int(request.POST.get('streak-length'))
             mode = request.POST.get('mode-select')
-            unit_number= int(request.POST.get('unit-number'))
+
 
 
             if mode == 'juz_mode':
-                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, juz_number=unit_number)
+                unit_number = int(request.POST.get('unit-number'))
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, juz_number=unit_number).order_by('last_refreshed')
             if mode == 'surah_mode':
-                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, surah_number=unit_number)
+                unit_number = int(request.POST.get('unit-number'))
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, surah_number=unit_number).order_by('last_refreshed')
+
+            if mode == 'free_mode':
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user).order_by('last_refreshed')
 
             hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length), streak_length)
 
@@ -220,39 +225,46 @@ def revise(request):
                 ays = qm[0].ayat_string
                 ays = ays.split(" ")
                 revision_strings = qm[0].ayat_string.split(" ")
-
+                print(show_word)
 
                 # get information about the ayat
                 hifz_meta = {'surah_number': hifz.surah_number, 'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number}
 
-
-                # get strings and show/hide information for ayat before and after
-                ayatBeforeExist, ayatAfterExist = False,False
-                if hifz.ayat_number > 1:
-                    ayatBeforeExist = True
-                    ayatBeforeQM = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number - 1)
-                    ayatBeforeCard = [(string, True) for string in ayatBeforeQM[0].ayat_string.split(" ")]
-                    ayatBeforeMeta = {'surah_name': getSurahString(hifz.surah_number), 'ayat_number': hifz.ayat_number - 1}
-
-                if hifz.ayat_number < findMetaSurah(hifz.surah_number):
-                    ayatAfterExist = True
-                    ayatAfterQM = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=hifz.ayat_number + 1)
-                    ayatAfterCard = [(string, True) for string in ayatAfterQM[0].ayat_string.split(" ")]
-                    ayatAfterMeta = {'surah_name': getSurahString(hifz.surah_number),
-                                      'ayat_number': hifz.ayat_number + 1}
-
-
-
-
-                # gather data in a card
-                revision_card = [(string, shown_status) for string, shown_status in zip(revision_strings, show_word)]
-                # print("RC {}".format(revision_card))
+                context_count = request.POST.get('context-count')
+                context_count = int(context_count)
 
                 StringMetaSet = []
-                if ayatBeforeExist: StringMetaSet.append([ayatBeforeMeta, ayatBeforeCard])
-                StringMetaSet.append([hifz_meta, revision_card])
-                if ayatAfterExist: StringMetaSet.append([ayatAfterMeta, ayatAfterCard])
 
+                current_ayat_before_number = hifz.ayat_number - context_count
+                for i in range(context_count):
+                    if current_ayat_before_number < hifz.ayat_number and current_ayat_before_number > 0:
+                        ayatBeforeQM = QuranMeta.objects.filter(surah_number=hifz.surah_number,
+                                                                ayat_number=current_ayat_before_number)
+                        ayatBeforeCard = [(string, True) for string in ayatBeforeQM[0].ayat_string.split(" ")]
+                        ayatBeforeMeta = {'surah_name': getSurahString(hifz.surah_number),
+                                          'ayat_number': current_ayat_before_number}
+                        StringMetaSet.append([ayatBeforeMeta, ayatBeforeCard])
+                        current_ayat_before_number += 1
+
+                # gather data in a card
+                revision_card = [(string, shown_status) for string, shown_status in
+                                 zip(revision_strings, show_word)]
+                StringMetaSet.append([hifz_meta, revision_card])
+
+                current_ayat_after_number = hifz.ayat_number + 1
+                upper_limit = findMetaSurah(hifz.surah_number)
+                for i in range(context_count):
+                    if current_ayat_after_number < (hifz.ayat_number + context_count) and current_ayat_after_number <= upper_limit:
+                        ayatAfterQM = QuranMeta.objects.filter(surah_number=hifz.surah_number,
+                                                               ayat_number=current_ayat_after_number)
+                        ayatAfterCard = [(string, True) for string in ayatAfterQM[0].ayat_string.split(" ")]
+                        ayatAfterMeta = {'surah_name': getSurahString(hifz.surah_number),
+                                         'ayat_number': current_ayat_after_number}
+                        StringMetaSet.append([ayatAfterMeta, ayatAfterCard])
+                        current_ayat_after_number += 1
+
+
+                # print(StringMetaSet)
                 allCardsToDisplay = (hifz_meta, StringMetaSet)
 
                 revision_cards.append(allCardsToDisplay)

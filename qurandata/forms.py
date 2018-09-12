@@ -13,7 +13,7 @@ class CustomUserCreationForm(UserCreationForm):
     def __init__(self , *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'form-control form-control-lg my-4 custom-size'
+            visible.field.widget.attrs['class'] = 'form-control form-control-lg m-4 custom-size'
             if visible.field == self.fields['username']:
                 visible.field.widget.attrs['placeholder'] = 'Username'
 

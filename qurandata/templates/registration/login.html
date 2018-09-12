@@ -27,6 +27,8 @@
   {% endif %}
 
   <!--TODO: add banner-->
+  <!--TODO: fix bug with csrf token, after signing up immediately tries to login-->
+
 
 <form method="post" action="{% url 'login' %}">
 {% csrf_token %}
