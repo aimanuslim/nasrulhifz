@@ -9,14 +9,21 @@
 
 {% for metaHifz, stringsAndSMeta in cardSet %}
     {% for word, metaShown in stringsAndSMeta %}
-            {% if metaShown %}
-                {{ word }}
-            {% else %}
-                <span class="hidden-word" type="hidden">{{ word }}</span>
+            {% if metaShown == True %}
+                <span class="m-1">{{ word }}</span>
+            {% endif %}
+            {% if metaShown == False %}
+                <span class="hidden-word m-1" style="display: none">{{ word }}</span>
     <span class="blank-lines">____</span>
             {% endif %}
+
+            {% if metaShown == 'Clue' %}
+                <span class="clue-word m-1" style="display: none">{{ word }}</span>
+                <span class="clue-blank-lines">____</span>
+            {% endif %}
+
         {% endfor %}
-    <b class="ayat-mark btn btn-light"> {{ metaHifz.ayat_number }} </b>
+    <b class="ayat-mark btn btn-light mx-1 "> {{ metaHifz.ayat_number }} </b>
 {% endfor %}
 
 

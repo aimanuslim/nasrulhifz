@@ -205,7 +205,7 @@ def revise(request):
                 wordindexes = hifz.wordindex_set.all()
 
                 # set all words to be visible
-                show_word = [True for i in range(len(wordindexes))]
+                show_word = [True if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
 
 
                 number_of_words_to_be_shown_or_hidden = 7
@@ -217,7 +217,8 @@ def revise(request):
                 # indices = random.sample(range(len(wordindexes)) if len(wordindexes) >= number_of_words_to_be_shown_or_hidden else range(number_of_words_to_be_shown_or_hidden), number_of_words_to_be_shown_or_hidden)
 
                 for i in indices:
-                    show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
+                    if (i > 1 and i < len(wordindexes) - 2):
+                        show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
 
 
                 # find the string for the ayat

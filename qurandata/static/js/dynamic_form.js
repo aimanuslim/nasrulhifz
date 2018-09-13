@@ -2,6 +2,7 @@ var idx = 1
 
 var showingLimit = false
 var wordShown = false
+var clueShown = false
 
 $(document).ready(function(){
 
@@ -36,11 +37,13 @@ $(document).ready(function(){
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'surah_mode'){
             $('#unit-number').attr('disabled', false)
             $('#unit-number').attr('placeholder', "Surah Number")
+            $('#unit-number').attr('max', "114")
         }
 
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'juz_mode'){
             $('#unit-number').attr('disabled', false)
             $('#unit-number').attr('placeholder', "Juz Number")
+            $('#unit-number').attr('max', "30")
         }
 
         if($('input[name=mode-select]:checked', '#reviseParameters').attr('id') == 'free_mode'){
@@ -53,12 +56,29 @@ $(document).ready(function(){
             $(".hidden-word").hide();
             $(".blank-lines").show();
             $(this).text('Show Words')
+            $("#show-clue-button").click()
             wordShown = false
         } else {
             $(".hidden-word").show();
             $(".blank-lines").hide();
             $(this).text('Hide Words')
+            $("#show-clue-button").click()
             wordShown = true
+        }
+
+    })
+
+    $("#show-clue-button").click(function(){
+        if(clueShown){
+            $(".clue-word").hide();
+            $(".clue-blank-lines").show();
+            $(this).text('Show Clue')
+            clueShown = false
+        } else {
+            $(".clue-word").show();
+            $(".clue-blank-lines").hide();
+            $(this).text('Hide Clue')
+            clueShown = true
         }
 
     })

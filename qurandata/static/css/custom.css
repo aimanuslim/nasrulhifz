@@ -36,6 +36,8 @@
 
 .ayat-mark {
     border-radius: 15px !important;
+    border-width: 1px !important;
+    border-color: black;
 }
 
 @font-face {
