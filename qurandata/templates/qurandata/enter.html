@@ -51,8 +51,17 @@
 
 	<br>
 
+
+
 	{% if display_with_meta %}
+
+		<div class='mydiv'>
+		<button id="close-display" type="button" class="close topleft" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
 		{% include "qurandata/ayatdisplay.html" %}
+		</div>
+		
 	{% endif %}
 
   <div class="d-flex justify-content-center">

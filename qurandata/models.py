@@ -17,6 +17,7 @@ class Hifz(models.Model):
     ayat_number = models.SmallIntegerField()
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
     juz_number = models.SmallIntegerField()
+    average_difficulty = models.SmallIntegerField()
 
 
     def __init__(self,*args, **kwargs):
@@ -25,8 +26,15 @@ class Hifz(models.Model):
             self.find_juz_number()
 
 
+
+
+
     def __str__(self):
         return "Surah number {} ayat number {} Last Refreshed on {} user {}".format(self.surah_number, self.ayat_number, self.last_refreshed, self.hafiz)
+
+    def save_average_difficulty(self):
+        wset = self.wordindex_set.all()
+        self.average_difficulty = sum(w.difficulty  for w in wset) / len(wset)
 
     def get_last_refreshed_timelength(self):
         now = datetime.date.today()
@@ -39,19 +47,23 @@ class Hifz(models.Model):
         diff = now - self.last_refreshed
         return diff.days
     def get_hifz_average_difficulty(self):
-        wset = self.wordindex_set.all()
-        return sum(w.difficulty  for w in wset) / len(wset)
+        # if not self.average_difficulty:
+        #     wset = self.wordindex_set.all()
+        #     return sum(w.difficulty  for w in wset) / len(wset)
+        # else:
+        return self.average_difficulty
 
     def find_juz_number(self):
         res  =  QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
         self.juz_number = res[0].juz_number
 
-    def store_difficulties(self, difficulty=3):
-        qm = QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
-        wordindexlength = len(qm[0].ayat_string.split(" "))
-        for i in range(wordindexlength):
-            w = WordIndex.objects.create(hifz=self, index=i, difficulty=difficulty)
-            w.save()
+    # def store_difficulties(self, difficulty=3):
+    #     qm = QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
+    #     wordindexlength = len(qm[0].ayat_string.split(" "))
+    #     for i in range(wordindexlength):
+    #         w = WordIndex.objects.create(hifz=self, index=i, difficulty=difficulty)
+    #         w.save()
+
 
 
 class WordIndex(models.Model):

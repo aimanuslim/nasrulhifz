@@ -9,30 +9,41 @@
 
     <input class="form-control my-4 " type="text" id="filter-input" onkeyup="filterTable()" placeholder="Search..">
 
+
+
 {% if ayat_list_for_surah %}
 	
-
-    <table id="ayat-list-table"  class="table table-striped table-bordered table-hover" style="width:100%">
+    <!-- <form method="POST" action="{% url 'qurandata:ayatlist' hifz.surah_number %}"> -->
+        <button type="submit" class="btn btn-success">Update</button>
+    <table id="ayat-list-table"  class="table table-bordered table-hover table-style">
         <thead>
 
             <tr>
                 <th style="text-align:center">Ayat Number</th>
                 <th style="text-align:center">Average Difficulty</th>
                 <th style="text-align:center">Last Time Refreshed</th>
+                <th style="text-align:center">Refreshed</th>
             </tr>
         </thead>
         <tbody data-link="row" class="rowlink">
             {% for hifz in ayat_list_for_surah %}
-                <tr class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">
-                    <td align="center">{{ hifz.ayat_number }}</td>
-                    <td align="center">{{ hifz.average_difficulty }}</td>
-                    <td align="center">{{ hifz.days_since_last_refreshed }} days</td>
-                </tr>
+            <tr>
+                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</td>
+                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.average_difficulty }}</td>
+                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }} days</td>
+                    <td align="center">
+                            <input type="checkbox" name="ayat_number" value="{{ hifz.ayat_number }}">
+                        </td>
+            </tr>
             {% endfor %}
         </tbody>
 
 
     </table>
+<!-- </form> -->
+
+   
+
 
 
 {%  else %}

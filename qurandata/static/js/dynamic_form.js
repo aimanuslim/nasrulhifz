@@ -95,6 +95,16 @@ $(document).ready(function(){
 
     });
 
+    $('.surah-param-inputs').focusout(function(){
+        $('.mydiv').remove()
+        $('#submit-button').text('Submit')
+    })
+
+    $('#close-display').click(function(){
+        $('.mydiv').remove()
+        $('#submit-button').text('Submit')
+    })
+
     $(".custom-carousel-button").click(function(){
         var refreshedForm = $('#refreshed-checkbox-form')
         var surah_number = $('.active #surah-number').text()

@@ -15,7 +15,7 @@ import random
 from datetime import date
 
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, ReviseForm
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -68,6 +68,8 @@ class AyatListView(generic.ListView):
             hifz.average_difficulty = "{0:.2f}".format(hifz.get_hifz_average_difficulty())
 
         return hifz_list
+
+        
 
 
 @login_required
@@ -158,7 +160,7 @@ def enter(request):
 @login_required
 def revise(request):
     if request.method == 'GET':
-        return render(request, "qurandata/revise.html", {'mode_select': "true"})
+        return render(request, "qurandata/revise.html", {'mode_select': "true", 'revise_forms': ReviseForm})
 
     if request.method == 'POST':
         # TODO: make it so that we can hide the whole ayat
@@ -191,6 +193,10 @@ def revise(request):
 
             if mode == 'free_mode':
                 hifz_to_revise = Hifz.objects.filter(hafiz=request.user).order_by('last_refreshed')
+
+
+
+
 
             hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length), streak_length)
 
@@ -369,6 +375,8 @@ def save_word_index_difficulty(request, surah_number, ayat_number, default_diffi
         else:
             # print("Creating new word indices")
             WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
+
+    hifz.save_average_difficulty()
 
 
 def findMetaAyat(surah_number, ayat_number):

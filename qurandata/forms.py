@@ -25,8 +25,19 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 
+# unused
+class ReviseForm(forms.Form):
+    unit_number = forms.IntegerField(min_value=1, max_value=30, widget=forms.NumberInput(
+        attrs={
+            'type': 'number',
+            'class': 'mb-4 form-control custom-size',
+            'id': 'unit-number',
+            'name': 'unit-number',
+            'placeholder': 'Juz Number',
+            'aria-describedby': 'UnitNumberWarning'
+        }
 
-
+        ))
 
 
 
@@ -38,21 +49,21 @@ class HifzForm(forms.Form) :
             'id': 'surah-number-form'
         }))
     ayat_number = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
-            'class': 'form-control form-control-lg',
+            'class': 'form-control form-control-lg surah-param-inputs',
             'placeholder': 'Ayat Number',
             'name': 'ayat_number',
             'id': 'ayat-number-input',
         }), required=False)
 
     min_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
-            'class': 'form-control form-control-lg',
+            'class': 'form-control form-control-lg surah-param-inputs',
             'placeholder': 'Lower Bound',
             'name': 'lower_bound',
             'id': 'min-limit-input',
         }), required=False)
 
     max_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
-            'class': 'form-control form-control-lg',
+            'class': 'form-control form-control-lg surah-param-inputs',
             'placeholder': 'Upper Bound',
             'name': 'upper_bound',
             'id': 'max-limit-input',
