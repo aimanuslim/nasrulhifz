@@ -13,7 +13,10 @@
 
 {% if ayat_list_for_surah %}
 	
-    <!-- <form method="POST" action="{% url 'qurandata:ayatlist' hifz.surah_number %}"> -->
+    <form method="POST" action="{% url 'qurandata:ayatlist' ayat_list_for_surah.0.surah_number %}">
+        <input type="hidden" name="surah_number" value="{{ ayat_list_for_surah.0.surah_number }}">
+        {% csrf_token %}
+
         <button type="submit" class="btn btn-success">Update</button>
     <table id="ayat-list-table"  class="table table-bordered table-hover table-style">
         <thead>
@@ -22,7 +25,7 @@
                 <th style="text-align:center">Ayat Number</th>
                 <th style="text-align:center">Average Difficulty</th>
                 <th style="text-align:center">Last Time Refreshed</th>
-                <th style="text-align:center">Refreshed</th>
+                <th style="text-align:center">Refreshed ?</th>
             </tr>
         </thead>
         <tbody data-link="row" class="rowlink">
@@ -33,6 +36,7 @@
                     <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }} days</td>
                     <td align="center">
                             <input type="checkbox" name="ayat_number" value="{{ hifz.ayat_number }}">
+                            
                         </td>
             </tr>
             {% endfor %}
@@ -40,7 +44,7 @@
 
 
     </table>
-<!-- </form> -->
+</form>
 
    
 

@@ -30,9 +30,6 @@ class SignUp(generic.CreateView):
         return super().form_valid(form)
 
 
-
-
-
 class IndexView(generic.ListView):
     template_name = 'qurandata/index.html'
     context_object_name = 'latest_quran_data'
@@ -51,6 +48,7 @@ class IndexView(generic.ListView):
             surah_meta_list.append(getSurahString(hifz.get('surah_number')))
 
         data = zip(hifz_list, surah_meta_list)
+        print(hifz_list)
         return data
 
 
@@ -58,7 +56,7 @@ class AyatListView(generic.ListView):
     template_name = 'qurandata/ayatlist.html'
     context_object_name = 'ayat_list_for_surah'
 
-    def get_queryset(self):
+    def get_queryset(self): 
         # hifz = get_object_or_404(Hifz, pk=self.kwargs['pk'])
         # return Hifz.objects.filter(surah_number=hifz.surah_number)
         hifz_list = Hifz.objects.filter(hafiz=self.request.user, surah_number=self.kwargs['surah_number'])
@@ -69,7 +67,36 @@ class AyatListView(generic.ListView):
 
         return hifz_list
 
-        
+    def post(self, request, *args, **kwargs):
+        surah_number = request.POST.get('surah_number')[0]
+        ayat_number_list = request.POST.getlist('ayat_number')
+
+        if surah_number:
+            surah_number = int(surah_number)
+            ayat_number_list = [int(n) for n in ayat_number_list]
+            for ayat_number in ayat_number_list:
+                h = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
+                h = h[0]
+                h.last_refreshed = date.today()
+                h.save()
+
+            hifz_list = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number)
+
+            for hifz in hifz_list:
+                hifz.last_refreshed_period_string = hifz.get_last_refreshed_timelength()
+                hifz.days_since_last_refreshed = hifz.get_number_of_days_since_refreshed()
+                hifz.average_difficulty = "{0:.2f}".format(hifz.get_hifz_average_difficulty())
+
+            return render(request, 'qurandata/ayatlist.html', {self.context_object_name: hifz_list})
+        else:
+            return Http404() 
+
+
+
+
+
+
+
 
 
 @login_required
