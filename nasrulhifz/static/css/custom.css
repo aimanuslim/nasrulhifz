@@ -60,29 +60,7 @@
     border-color: black;
 }
 
-@font-face {
-  font-family: 'me_quran';
-  src: url('../fonts/me_quran.ttf')  format("truetype"),
-       local('me_quran');
-}
 
-
-.me_quran {
-    font-family: me_quran;
-    font-size: 20px;
-}
-
-@font-face {
-  font-family: 'uthm';
-  src: url('../fonts/uthm.ttf')  format("truetype"),
-       local('uthm');
-}
-
-
-.uthm {
-    font-family: uthm;
-    font-size: 35px;
-}
 
 @font-face {
   font-family: 'uthm2';
