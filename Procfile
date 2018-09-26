@@ -1,1 +1,1 @@
-web: gunicorn nasrulhifz.wsgi —-log-file -
+web: gunicorn nasrulhifz.wsgi --log-file -
