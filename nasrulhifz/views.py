@@ -401,7 +401,7 @@ def save_word_index_difficulty(request, surah_number, ayat_number, default_diffi
             w.difficulty = int(wordindex_difficulty)
             w.save()
         else:
-            print("Creating new word indices")
+            # print("Creating new word indices")
             WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
 
     hifz.save_average_difficulty()

@@ -22,8 +22,6 @@ class Hifz(models.Model):
 
     def __init__(self,*args, **kwargs):
         super(Hifz, self).__init__(*args, **kwargs)
-        if not self.juz_number:
-            self.find_juz_number()
 
 
     def __str__(self):
