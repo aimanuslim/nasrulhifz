@@ -25,7 +25,7 @@ SECRET_KEY = 'l6p==m@t^9z_!xc0-y)e8*cz@ukno1nvm_913#4)up=$-hwio1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', 'https://protected-thicket-37721.herokuapp.com/']
 
 
 # Application definition
@@ -134,7 +134,9 @@ LOGIN_REDIRECT_URL = '/nasrulhifz/'
 
 # For seeing email sent at console.
 # TODO: remove when setting up email later
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-import django_heroku
-django_heroku.settings(locals())
+# import django_heroku
+# django_heroku.settings(locals())
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
