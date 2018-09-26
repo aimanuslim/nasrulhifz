@@ -26,9 +26,6 @@ class Hifz(models.Model):
             self.find_juz_number()
 
 
-
-
-
     def __str__(self):
         return "Surah number {} ayat number {} Last Refreshed on {} user {}".format(self.surah_number, self.ayat_number, self.last_refreshed, self.hafiz)
 
