@@ -136,7 +136,7 @@ LOGIN_REDIRECT_URL = '/nasrulhifz/'
 # TODO: remove when setting up email later
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-import django_heroku
-django_heroku.settings(locals())
+# import django_heroku
+# django_heroku.settings(locals())
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
