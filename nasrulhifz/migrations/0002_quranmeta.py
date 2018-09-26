@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('qurandata', '0001_initial'),
+        ('nasrulhifz', '0001_initial'),
     ]
 
     operations = [

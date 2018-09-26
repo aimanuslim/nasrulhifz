@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'l6p==m@t^9z_!xc0-y)e8*cz@ukno1nvm_913#4)up=$-hwio1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'qurandata.apps.QurandataConfig',
+    'nasrulhifz.apps.QurandataConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,7 +66,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries':{
-                'ayat_extras': 'qurandata.templatetags.ayat_extras',
+                'ayat_extras': 'nasrulhifz.templatetags.ayat_extras',
 
             }
         },
@@ -130,7 +130,7 @@ STATICFILES_DIRS = [
 ]
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
-LOGIN_REDIRECT_URL = '/qurandata/'
+LOGIN_REDIRECT_URL = '/nasrulhifz/'
 
 # For seeing email sent at console.
 # TODO: remove when setting up email later

@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from enum import Enum
 from django.utils.translation import gettext_lazy as _
-from qurandata.helper import get_appropriate_timeunits_from_day
+from nasrulhifz.helper import get_appropriate_timeunits_from_day
 from django.contrib.auth.models import User
 
 class DifficultyChoice(Enum):   # A subclass of Enum

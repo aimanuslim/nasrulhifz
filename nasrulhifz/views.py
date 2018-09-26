@@ -31,7 +31,7 @@ class SignUp(generic.CreateView):
 
 
 class IndexView(generic.ListView):
-    template_name = 'qurandata/index.html'
+    template_name = 'nasrulhifz/index.html'
     context_object_name = 'latest_quran_data'
 
     login_url = '/login/'
@@ -53,7 +53,7 @@ class IndexView(generic.ListView):
 
 
 class AyatListView(generic.ListView):
-    template_name = 'qurandata/ayatlist.html'
+    template_name = 'nasrulhifz/ayatlist.html'
     context_object_name = 'ayat_list_for_surah'
 
     def get_queryset(self): 
@@ -87,7 +87,7 @@ class AyatListView(generic.ListView):
                 hifz.days_since_last_refreshed = hifz.get_number_of_days_since_refreshed()
                 hifz.average_difficulty = "{0:.2f}".format(hifz.get_hifz_average_difficulty())
 
-            return render(request, 'qurandata/ayatlist.html', {self.context_object_name: hifz_list})
+            return render(request, 'nasrulhifz/ayatlist.html', {self.context_object_name: hifz_list})
         else:
             return Http404() 
 
@@ -105,7 +105,7 @@ def detail(request, surah_number, ayat_number):
 
     if request.method == 'GET':
         # print(data)
-        return render(request, 'qurandata/detail.html', data)
+        return render(request, 'nasrulhifz/detail.html', data)
 
     if request.method == 'POST':
         save_word_index_difficulty(request=request, surah_number=surah_number, ayat_number=ayat_number)
@@ -140,9 +140,9 @@ def enter(request):
                 data['hifzform'] = hifzform
                 # print(data)
 
-                return render(request, 'qurandata/enter.html', data)
+                return render(request, 'nasrulhifz/enter.html', data)
         else:
-            return render(request, 'qurandata/enter.html', {'hifzform': hifzform})
+            return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
     if request.method == 'POST':
         hifzform = HifzForm(request.POST)
@@ -187,7 +187,7 @@ def enter(request):
 @login_required
 def revise(request):
     if request.method == 'GET':
-        return render(request, "qurandata/revise.html", {'mode_select': "true", 'revise_forms': ReviseForm})
+        return render(request, "nasrulhifz/revise.html", {'mode_select': "true", 'revise_forms': ReviseForm})
 
     if request.method == 'POST':
         # TODO: make it so that we can hide the whole ayat
@@ -201,7 +201,7 @@ def revise(request):
                 h = h[0]
                 h.last_refreshed = date.today()
                 h.save()
-                return render(request, 'qurandata/revise.html')
+                return render(request, 'nasrulhifz/revise.html')
             else:
                 raise Http404()
 
@@ -304,8 +304,8 @@ def revise(request):
                 revision_cards.append(allCardsToDisplay)
 
             # print(revision_cards)
-            return render(request, 'qurandata/revise.html', {'revision_cards': revision_cards})
-        return render(request, 'qurandata/revise.html')
+            return render(request, 'nasrulhifz/revise.html', {'revision_cards': revision_cards})
+        return render(request, 'nasrulhifz/revise.html')
 
 
 

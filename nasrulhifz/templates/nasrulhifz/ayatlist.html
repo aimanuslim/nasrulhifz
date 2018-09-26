@@ -13,7 +13,7 @@
 
 {% if ayat_list_for_surah %}
 	
-    <form method="POST" action="{% url 'qurandata:ayatlist' ayat_list_for_surah.0.surah_number %}">
+    <form method="POST" action="{% url 'nasrulhifz:ayatlist' ayat_list_for_surah.0.surah_number %}">
         <input type="hidden" name="surah_number" value="{{ ayat_list_for_surah.0.surah_number }}">
         {% csrf_token %}
 
@@ -31,9 +31,9 @@
         <tbody data-link="row" class="rowlink">
             {% for hifz in ayat_list_for_surah %}
             <tr>
-                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</td>
-                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.average_difficulty }}</td>
-                    <td align="center" class='clickable-row' data-href="{% url 'qurandata:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }} days</td>
+                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</td>
+                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.average_difficulty }}</td>
+                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }} days</td>
                     <td align="center">
                             <input type="checkbox" name="ayat_number" value="{{ hifz.ayat_number }}">
                             

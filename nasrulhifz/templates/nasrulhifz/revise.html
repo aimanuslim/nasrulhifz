@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<form id="reviseParameters" action="{% url 'qurandata:revise' %}" method="POST">
+<form id="reviseParameters" action="{% url 'nasrulhifz:revise' %}" method="POST">
     {% csrf_token %}
     <div class="my-4 row justify-content-center">
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -84,7 +84,7 @@
                 <div class="carousel-item">
             {% endif %}
 
-            {% include "qurandata/revisiondisplay.html" %}
+            {% include "nasrulhifz/revisiondisplay.html" %}
 
             </div>
         {% endfor %}
@@ -100,7 +100,7 @@
 
 	<div class="row justify-content-center align-items-center">
 		<div class="my-4 checkbox">
-            <form action="{% url 'qurandata:revise' %}" method="POST" id="refreshed-checkbox-form">
+            <form action="{% url 'nasrulhifz:revise' %}" method="POST" id="refreshed-checkbox-form">
                 {% csrf_token %}
                 <label><input id="refreshed-checkbox" type="checkbox" value="">  Refreshed!</label>
             </form>

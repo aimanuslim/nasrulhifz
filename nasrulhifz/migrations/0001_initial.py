@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('index', models.SmallIntegerField()),
-                ('hifz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='qurandata.Hifz')),
+                ('hifz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='nasrulhifz.Hifz')),
             ],
         ),
     ]
