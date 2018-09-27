@@ -182,7 +182,7 @@ def enter(request):
             message = "Ayat number exceeds limit for surah"
             messages.warning(request, message, extra_tags='alert alert-danger')
 
-        return HttpResponseRedirect("")
+        return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
 @login_required
 def revise(request):
