@@ -1,1 +1,1 @@
-web: gunicorn mysite.wsgi -c ./config/unicorn.rb --log-file -
+web: gunicorn mysite.wsgi --timeout 30 --log-file -
