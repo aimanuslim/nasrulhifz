@@ -237,8 +237,9 @@ def revise(request):
                 revision_strings = []
                 wordindexes = hifz.wordindex_set.all()
 
-                # set all words to be visible
-                show_word = [True if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
+                # set all words to be invisible
+                # show_word = [True if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
+                show_word = [False if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
 
 
                 number_of_words_to_be_shown_or_hidden = 7
@@ -288,7 +289,7 @@ def revise(request):
                 current_ayat_after_number = hifz.ayat_number + 1
                 upper_limit = findMetaSurah(hifz.surah_number)
                 for i in range(context_count):
-                    if current_ayat_after_number < (hifz.ayat_number + context_count) and current_ayat_after_number <= upper_limit:
+                    if current_ayat_after_number <= (hifz.ayat_number + context_count) and current_ayat_after_number <= upper_limit:
                         ayatAfterQM = QuranMeta.objects.filter(surah_number=hifz.surah_number,
                                                                ayat_number=current_ayat_after_number)
                         ayatAfterCard = [(string, True) for string in ayatAfterQM[0].ayat_string.split(" ")]

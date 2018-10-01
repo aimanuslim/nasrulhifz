@@ -68,6 +68,11 @@
        local('uthm2');
 }
 
+.ayat-box {
+    width: 550px;
+    margin: auto;
+}
+
 
 .uthm2 {
     font-family: uthm2;

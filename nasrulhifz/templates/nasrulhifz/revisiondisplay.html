@@ -4,7 +4,7 @@
     <button id="ayat-number" type="button" class="label-button btn btn-light">{{ hifzinfo.ayat_number }}</button>
 </div>
 
-<p class="uthm2 text-center" dir="rtl">
+<p class="uthm2 text-center ayat-box" dir="rtl" style="text-align:justify">
 
 
 {% for metaHifz, stringsAndSMeta in cardSet %}
@@ -25,6 +25,7 @@
         {% endfor %}
     <b class="ayat-mark btn btn-light mx-1 "> {{ metaHifz.ayat_number }} </b>
 {% endfor %}
+
 
 
 </p>
