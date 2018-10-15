@@ -51,6 +51,18 @@
     <div class="row justify-content-center">
         <div class="col-md-12 align-self-center">
             <input type="number" class="mb-4 form-control" id="context-count" name="context-count" value="1" max="4" min="1" required="true">
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="mb-4 col-md-12 align-self-center">
+            Please enter the range of ayat that is going to be tested.
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12 align-self-center">
+            <input type="number" class="mb-4 form-control" id="proximity-count" name="proximity-count" value="1" max="4" min="1" required="true">
             <button  class="btn btn-outline-primary" type="submit">Start</button>
         </div>
     </div>
@@ -60,7 +72,7 @@
 {% endif %}
 
 
-{% if revision_cards and revision_cards|length > 1 %}
+{% if revision_cards and revision_cards|length > 0 %}
 <div id="revise_carousel" class="carousel slide" data-ride="carousel" data-interval="0">
 
 
@@ -75,6 +87,7 @@
     </div>
 
     <!-- The slideshow -->
+
     <div class="carousel-inner">
 
         {% for hifzinfo, cardSet in revision_cards %}
@@ -100,13 +113,15 @@
 
 	<div class="row justify-content-center align-items-center">
 		<div class="my-4 checkbox">
-            <form action="{% url 'nasrulhifz:revise' %}" method="POST" id="refreshed-checkbox-form">
+                <form action="{% url 'nasrulhifz:revise' %}" method="POST" id="refreshed-checkbox-form">
+
                 {% csrf_token %}
                 <label><input id="refreshed-checkbox" type="checkbox" value="">  Refreshed!</label>
-            </form>
+    </form>
 
 		</div>
 	</div>
+
 
 
 

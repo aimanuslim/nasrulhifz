@@ -56,12 +56,17 @@ $(document).ready(function(){
             $(".hidden-word").hide();
             $(".blank-lines").show();
             $(this).text('Show Words')
-            $("#show-clue-button").click()
+            if($("#show-clue-button").text() == 'Show Clue'){
+                $("#show-clue-button").click()
+            }
             wordShown = false
         } else {
             $(".hidden-word").show();
             $(".blank-lines").hide();
             $(this).text('Hide Words')
+            if($("#show-clue-button").text() == 'Hide Clue'){
+                $("#show-clue-button").click()
+            }
             $("#show-clue-button").click()
             wordShown = true
         }
@@ -85,9 +90,9 @@ $(document).ready(function(){
 
     $('#surah-number-form').focusout(function(){
         var surah_number = $(this).val()
-        console.log(surah_number)
+//        console.log(surah_number)
         $.get("", {'surah_number': surah_number, 'change_limits': 'true'}, function(data){
-            console.log(data)
+//            console.log(data)
             $('#ayat-number-input').attr('max', data['surah_limit'])
             $('#min-limit-input').attr('max', data['surah_limit'])
             $('#max-limit-input').attr('max', data['surah_limit'])
@@ -108,7 +113,11 @@ $(document).ready(function(){
     $(".custom-carousel-button").click(function(){
         var refreshedForm = $('#refreshed-checkbox-form')
         var surah_number = $('.active #surah-number').text()
-        var ayat_number = $('.active #ayat-number').text()
+        var ayat_number = []
+        $(".active .hidden-ayat").each(function(index){
+            ayat_number.push($(this).text())
+//            console.log('Hidden ayat is:' + $(this).text())
+        });
 //        console.log(surah_number)
 //        console.log(ayat_number)
         var isChecked = $("#refreshed-checkbox").is(':checked')
