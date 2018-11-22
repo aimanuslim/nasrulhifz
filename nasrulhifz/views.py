@@ -20,7 +20,8 @@ from datetime import date
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm, ReviseForm
 
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -96,13 +97,13 @@ class AyatListView(generic.ListView):
         else:
             return Http404() 
 
-@staff_member_required
-def hifz_list(request):
-    if request.method == 'GET':
+class ProductList(APIView):
+    def get(self, request, format=None):
         hifz_list = Hifz.objects.all()
         serializer = HifzSerializer(hifz_list, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
+#TODO: https://www.andreagrandi.it/2016/10/01/creating-a-production-ready-api-with-python-and-django-rest-framework-part-2/
 
 
 

@@ -10,5 +10,5 @@ urlpatterns = [
     path('enter/', views.enter, name='enter'),
     path('revise/', views.revise, name='revise'),
     path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail"),
-    path('api/', views.hifz_list)
+    path('api/', views.ProductList.as_view())
 ]
