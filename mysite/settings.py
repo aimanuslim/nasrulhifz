@@ -142,14 +142,7 @@ LOGIN_REDIRECT_URL = '/nasrulhifz/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-import dj_database_url
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL')
-    )
-}
+
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -159,4 +152,11 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 try:
   from local_settings import *
 except Exception as e:
-  pass
+  import dj_database_url
+  SECRET_KEY = config('SECRET_KEY')
+  DEBUG = config('DEBUG', default=False, cast=bool)
+  DATABASES = {
+      'default': dj_database_url.config(
+          default=config('DATABASE_URL')
+      )
+  }

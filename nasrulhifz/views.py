@@ -7,15 +7,20 @@ from django.contrib import messages
 import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
+from .serializers import HifzSerializer
 from .forms import HifzForm
 from numpy import take
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+
 import random
 from datetime import date
 
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm, ReviseForm
+
+
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -91,8 +96,12 @@ class AyatListView(generic.ListView):
         else:
             return Http404() 
 
-
-
+@staff_member_required
+def hifz_list(request):
+    if request.method == 'GET':
+        hifz_list = Hifz.objects.all()
+        serializer = HifzSerializer(hifz_list, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
 
 

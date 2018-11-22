@@ -9,5 +9,6 @@ urlpatterns = [
     path('<int:surah_number>/ayats/', login_required(views.AyatListView.as_view()), name="ayatlist"),
     path('enter/', views.enter, name='enter'),
     path('revise/', views.revise, name='revise'),
-    path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail")
+    path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail"),
+    path('api/', views.hifz_list)
 ]
