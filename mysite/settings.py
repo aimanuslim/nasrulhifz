@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', 'theunheard.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '10.12.242.122', 'localhost']
 
 
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +152,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # try to load local_settings.py if it exists
 try:
-  from local_settings import *
+  # from local_settings import *
+  from sqlite3_settings import *
 except Exception as e:
   import dj_database_url
   SECRET_KEY = config('SECRET_KEY')
@@ -161,3 +163,9 @@ except Exception as e:
           default=config('DATABASE_URL')
       )
   }
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+      'rest_framework.authentication.TokenAuthentication',
+  )
+}

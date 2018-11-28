@@ -20,8 +20,11 @@ from datetime import date
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm, ReviseForm
 
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from .permissions import IsAdminOrReadOnly
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -97,13 +100,11 @@ class AyatListView(generic.ListView):
         else:
             return Http404() 
 
-class ProductList(APIView):
-    def get(self, request, format=None):
-        hifz_list = Hifz.objects.all()
-        serializer = HifzSerializer(hifz_list, many=True)
-        return Response(serializer.data)
-
-#TODO: https://www.andreagrandi.it/2016/10/01/creating-a-production-ready-api-with-python-and-django-rest-framework-part-2/
+class HifzList(generics.ListCreateAPIView):
+    queryset = Hifz.objects.all()
+    serializer_class = HifzSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+#TODO: need to ensure can fetch list etc
 
 
 
