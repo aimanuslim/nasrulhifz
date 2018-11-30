@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 from django.contrib.auth.decorators import login_required
 from rest_framework.authtoken.views import obtain_auth_token
+from django.conf.urls import include
+
 app_name = 'nasrulhifz'
 
 urlpatterns = [
@@ -12,5 +14,6 @@ urlpatterns = [
     path('revise/', views.revise, name='revise'),
     path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail"),
     path('api/', views.HifzList.as_view()),
-    path('api-token-auth/', obtain_auth_token)
+    path('api-token-auth/', obtain_auth_token),
+    path('api-auth/', include('rest_framework.urls')),
 ]

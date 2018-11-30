@@ -4,27 +4,25 @@ from django.views import generic
 from django.urls import reverse_lazy
 
 from django.contrib import messages
+from django.contrib.auth.models import User
+
 import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
-from .serializers import HifzSerializer
+from .serializers import HifzSerializer, UserSerializer
 from .forms import HifzForm
 from numpy import take
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 
 import random
 from datetime import date
 
-from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm, ReviseForm
 
 from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsOwner
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -101,11 +99,14 @@ class AyatListView(generic.ListView):
             return Http404() 
 
 class HifzList(generics.ListCreateAPIView):
-    queryset = Hifz.objects.all()
+    # queryset = Hifz.objects.all()
     serializer_class = HifzSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-#TODO: need to ensure can fetch list etc
+    permission_classes = (IsOwner,)
+    def get_queryset(self):
+        return Hifz.objects.filter(hafiz=self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save(hafiz=self.request.user)
 
 
 
