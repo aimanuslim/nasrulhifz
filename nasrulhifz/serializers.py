@@ -16,3 +16,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'hifz')
+
+class QuranMetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuranMeta
+        fields = ('surah_number', 'ayat_number', 'ayat_string', 'juz_number')

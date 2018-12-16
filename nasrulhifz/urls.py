@@ -14,6 +14,9 @@ urlpatterns = [
     path('revise/', views.revise, name='revise'),
     path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail"),
     path('api/', views.HifzList.as_view()),
+    path('api/quranmeta/list/', views.QuranMetaList.as_view()),
+    path('api/quranmeta/<int:surah_number>/<int:ayat_number>/', views.QuranMetaDetail.as_view()),
+    # path('api/quranmeta/<int:pk>/', views.QuranMetaDetail.as_view()),
     path('api-token-auth/', obtain_auth_token),
     path('api-auth/', include('rest_framework.urls')),
 ]

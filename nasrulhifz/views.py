@@ -1,7 +1,8 @@
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -9,7 +10,7 @@ from django.contrib.auth.models import User
 import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
-from .serializers import HifzSerializer, UserSerializer
+from .serializers import HifzSerializer, QuranMetaSerializer
 from .forms import HifzForm
 from numpy import take
 
@@ -21,6 +22,9 @@ from datetime import date
 from .forms import CustomUserCreationForm, ReviseForm
 
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework import mixins
+
 
 from .permissions import IsOwner
 
@@ -109,6 +113,32 @@ class HifzList(generics.ListCreateAPIView):
         serializer.save(hafiz=self.request.user)
 
 
+class QuranMetaList(generics.ListAPIView):
+    serializer_class = QuranMetaSerializer
+    def get_queryset(self):
+        queryset = QuranMeta.objects.all()
+        surah_number = self.request.query_params.get('surah_number', None)
+        juz_number = self.request.query_params.get('juz_number', None)
+        if surah_number is not None:
+            queryset = queryset.filter(surah_number=surah_number)
+            return queryset
+        elif juz_number is not None:
+            queryset = queryset.filter(juz_number=juz_number)
+            return queryset
+        else:
+            return None
+
+
+class QuranMetaDetail(generics.RetrieveAPIView):
+    serializer_class = QuranMetaSerializer
+    model = QuranMeta
+
+    def get_object(self):
+        # this how we fetch the parameter from the url format, specified in url.py
+        surah_number = self.kwargs.get('surah_number')
+        ayat_number = self.kwargs.get('ayat_number')
+
+        return QuranMeta.objects.get(surah_number=surah_number, ayat_number=ayat_number)
 
 
 @login_required
