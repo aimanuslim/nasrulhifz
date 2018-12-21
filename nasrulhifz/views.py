@@ -21,9 +21,8 @@ from datetime import date
 
 from .forms import CustomUserCreationForm, ReviseForm
 
-from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework import mixins
+from rest_framework import generics, status
+from rest_framework.response import Response
 
 
 from .permissions import IsOwner
@@ -106,7 +105,18 @@ class HifzList(generics.ListCreateAPIView):
     # queryset = Hifz.objects.all()
     serializer_class = HifzSerializer
     permission_classes = (IsOwner,)
+
     def get_queryset(self):
+        surah_number = self.request.query_params.get('surah_number', None)
+        juz_number = self.request.query_params.get('juz_number', None)
+        ayat_number = self.request.query_params.get('ayat_number', None)
+        if surah_number is not None and ayat_number is not None:
+            return Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number, ayat_number=ayat_number)
+        if surah_number is not None:
+            return Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number)
+        if juz_number is not None:
+            return Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number)
+
         return Hifz.objects.filter(hafiz=self.request.user)
 
     def perform_create(self, serializer):
@@ -139,6 +149,41 @@ class QuranMetaDetail(generics.RetrieveAPIView):
         ayat_number = self.kwargs.get('ayat_number')
 
         return QuranMeta.objects.get(surah_number=surah_number, ayat_number=ayat_number)
+
+class ReviseList(generics.ListAPIView):
+    serializer_class = QuranMetaSerializer
+    permission_classes = (IsOwner,)
+
+    def get_queryset(self):
+        surah_number = self.request.query_params.get('surah_number', None)
+        juz_number = self.request.query_params.get('juz_number', None)
+        vicinity = self.request.query_params.get('vicinity', 1)
+        streak = self.request.query_params.get('streak_length', 1)
+
+        try:
+            vicinity = int(vicinity)
+            if surah_number is not None: surah_number = int(surah_number)
+            if juz_number is not None: juz_number = int(juz_number)
+        except:
+            content = {'message': 'parameter invalid'}
+            return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
+
+        if juz_number is not None and surah_number is not None:
+            content = {'message': 'cannot have both surah and juz numbers'}
+            return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
+
+        if juz_number is None and surah_number is None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')[]
+
+        hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak else range(streak), streak)
+
+        if len(hifz_to_revise) > 1:
+            hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
+
+        #TODO Decide what to return here
+        for hifz in hifz_to_revise:
+
+
 
 
 @login_required
