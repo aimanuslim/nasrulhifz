@@ -1,13 +1,13 @@
-from .models import Hifz, QuranMeta
+from .models import Hifz, QuranMeta, SurahMeta
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
 
 class HifzSerializer(serializers.ModelSerializer):
-    hafiz = serializers.ReadOnlyField(source='hafiz.username')
     class Meta:
         model = Hifz
-        fields = ('hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty')
+        extra_kwargs = {'juz_number': {'read_only': True}}
+        fields = ('surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -21,3 +21,8 @@ class QuranMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuranMeta
         fields = ('surah_number', 'ayat_number', 'ayat_string', 'juz_number')
+
+class SurahMetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurahMeta
+        fields = ('surah_number', 'name_string', 'surah_ayat_max')

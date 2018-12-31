@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpRespons
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse_lazy
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 from django.contrib import messages
@@ -10,7 +11,7 @@ from django.contrib.auth.models import User
 import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
-from .serializers import HifzSerializer, QuranMetaSerializer
+from .serializers import HifzSerializer, QuranMetaSerializer, SurahMetaSerializer
 from .forms import HifzForm
 from numpy import take
 
@@ -21,7 +22,7 @@ from datetime import date
 
 from .forms import CustomUserCreationForm, ReviseForm
 
-from rest_framework import generics, status
+from rest_framework import generics, status, mixins, parsers
 from rest_framework.response import Response
 
 
@@ -99,10 +100,10 @@ class AyatListView(generic.ListView):
 
             return render(request, 'nasrulhifz/ayatlist.html', {self.context_object_name: hifz_list})
         else:
-            return Http404() 
+            return Http404()
 
-class HifzList(generics.ListCreateAPIView):
-    # queryset = Hifz.objects.all()
+
+class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = HifzSerializer
     permission_classes = (IsOwner,)
 
@@ -120,11 +121,35 @@ class HifzList(generics.ListCreateAPIView):
         return Hifz.objects.filter(hafiz=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(hafiz=self.request.user)
+        hifz = Hifz.objects.get(hafiz=self.request.user, surah_number=serializer.data.get('surah_number'), ayat_number=serializer.data.get('ayat_number'))
+        if hifz is not None:
+            raise ValidationError('Hifz already exist')
+        else:
+            serializer.save(hafiz=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = parsers.JSONParser().parse(request)
+        print(data)
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+        else:
+            serializer = self.get_serializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save(hafiz=request.user)
+            return JsonResponse(serializer.data, safe=False, status=201)
+        else:
+            return JsonResponse(serializer.errors, safe=False, status=400)
+
+
 
 
 class QuranMetaList(generics.ListAPIView):
     serializer_class = QuranMetaSerializer
+    queryset = QuranMeta.objects.all()
     def get_queryset(self):
         queryset = QuranMeta.objects.all()
         surah_number = self.request.query_params.get('surah_number', None)
@@ -150,6 +175,12 @@ class QuranMetaDetail(generics.RetrieveAPIView):
 
         return QuranMeta.objects.get(surah_number=surah_number, ayat_number=ayat_number)
 
+class SurahMetaDetail(generics.RetrieveAPIView):
+    serializer_class = SurahMetaSerializer
+    def get_object(self):
+        surah_number = self.kwargs.get('surah_number')
+        return SurahMeta.objects.get(surah_number=surah_number)
+
 class ReviseList(generics.ListAPIView):
     serializer_class = QuranMetaSerializer
     permission_classes = (IsOwner,)
@@ -159,9 +190,13 @@ class ReviseList(generics.ListAPIView):
         juz_number = self.request.query_params.get('juz_number', None)
         vicinity = self.request.query_params.get('vicinity', 1)
         streak = self.request.query_params.get('streak_length', 1)
+        blind_count = self.request.query_params.get('blind_count', 1)
 
         try:
             vicinity = int(vicinity)
+            streak = int(streak)
+            blind_count = int(streak)
+
             if surah_number is not None: surah_number = int(surah_number)
             if juz_number is not None: juz_number = int(juz_number)
         except:
@@ -172,19 +207,33 @@ class ReviseList(generics.ListAPIView):
             content = {'message': 'cannot have both surah and juz numbers'}
             return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
 
+        # free mode
         if juz_number is None and surah_number is None:
-            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')[]
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')
+        # juz mode
+        elif juz_number is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by('last_refreshed')
+        # surah mode
+        elif surah_number is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
+                'last_refreshed')
 
         hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak else range(streak), streak)
-
         if len(hifz_to_revise) > 1:
             hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
-        #TODO Decide what to return here
+        all = QuranMeta.objects.all()
+        queryset = QuranMeta.objects.none()
+
         for hifz in hifz_to_revise:
-
-
-
+            surah_meta = SurahMeta.objects.get(surah_number=hifz.surah_number)
+            central_ayat_number = hifz.ayat_number
+            start_ayat_number = central_ayat_number - blind_count - vicinity
+            end_ayat_number = central_ayat_number + blind_count + vicinity
+            if start_ayat_number < 1: start_ayat_number = 1
+            if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
+            queryset = queryset | all.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)
+        return queryset
 
 @login_required
 def detail(request, surah_number, ayat_number):
