@@ -12,18 +12,19 @@ class DifficultyChoice(Enum):   # A subclass of Enum
 
 # Create your models here.
 class Hifz(models.Model):
-    hafiz = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    hafiz = models.ForeignKey(User, on_delete=models.CASCADE)
     surah_number = models.SmallIntegerField()
     ayat_number = models.SmallIntegerField()
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
-    juz_number = models.SmallIntegerField()
+    juz_number = models.SmallIntegerField(blank=True)
     average_difficulty = models.SmallIntegerField()
 
 
-    def __init__(self,*args, **kwargs):
-        super(Hifz, self).__init__(*args, **kwargs)
-        self.find_juz_number()
-
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.juz_number is None:
+            self.find_juz_number()
+        super(Hifz, self).save()
 
     def __str__(self):
         return "Surah number {} ayat number {} Last Refreshed on {} user {}".format(self.surah_number, self.ayat_number, self.last_refreshed, self.hafiz)
@@ -50,8 +51,9 @@ class Hifz(models.Model):
         return self.average_difficulty
 
     def find_juz_number(self):
-        res  =  QuranMeta.objects.filter(surah_number=self.surah_number, ayat_number=self.ayat_number)
-        self.juz_number = res[0].juz_number + 1
+        if self.surah_number is not None and self.ayat_number is not None:
+            res  =  QuranMeta.objects.get(surah_number=self.surah_number, ayat_number=self.ayat_number)
+            self.juz_number = res.juz_number + 1
 
 
 

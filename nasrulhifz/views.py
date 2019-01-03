@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
-from .serializers import HifzSerializer, QuranMetaSerializer, SurahMetaSerializer
+from .serializers import *
 from .forms import HifzForm
 from numpy import take
 
@@ -120,19 +120,12 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
 
         return Hifz.objects.filter(hafiz=self.request.user)
 
-    def perform_create(self, serializer):
-        hifz = Hifz.objects.get(hafiz=self.request.user, surah_number=serializer.data.get('surah_number'), ayat_number=serializer.data.get('ayat_number'))
-        if hifz is not None:
-            raise ValidationError('Hifz already exist')
-        else:
-            serializer.save(hafiz=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.list(self, request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         data = parsers.JSONParser().parse(request)
-        print(data)
         if isinstance(data, list):
             serializer = self.get_serializer(data=data, many=True)
         else:
@@ -140,6 +133,31 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
 
         if serializer.is_valid():
             serializer.save(hafiz=request.user)
+            return JsonResponse(serializer.data, safe=False, status=201)
+        else:
+            return JsonResponse(serializer.errors, safe=False, status=400)
+
+    def patch(self, request, *args, **kwargs):
+        data = parsers.JSONParser().parse(request)
+        if isinstance(data, list):
+            objs = Hifz.objects.filter(hafiz=self.request.user)
+            for d in data:
+                d['hafiz'] = {'username': self.request.user.username}
+            serializer = self.get_serializer(instance=objs, data=data, many=True)
+            print(serializer)
+        else:
+            try:
+                obj = Hifz.objects.get(hafiz=self.request.user,
+                                       surah_number=data.get('surah_number'),
+                                       ayat_number=data.get('ayat_number'))
+                serializer = self.get_serializer(instance=obj, data=data)
+            except ObjectDoesNotExist:
+                raise ObjectDoesNotExist("Object does not exist")
+        print("before validation")
+        if serializer.is_valid():
+            print("before save")
+            serializer.save()
+            print("after save")
             return JsonResponse(serializer.data, safe=False, status=201)
         else:
             return JsonResponse(serializer.errors, safe=False, status=400)
