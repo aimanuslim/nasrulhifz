@@ -1,14 +1,10 @@
-from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponse
+from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse_lazy
-from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404
 
 from django.contrib import messages
-from django.contrib.auth.models import User
 
-import random
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
 from .serializers import *
@@ -24,6 +20,7 @@ from .forms import CustomUserCreationForm, ReviseForm
 
 from rest_framework import generics, status, mixins, parsers
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 
 from .permissions import IsOwner
@@ -144,25 +141,37 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
             for d in data:
                 d['hafiz'] = {'username': self.request.user.username}
             serializer = self.get_serializer(instance=objs, data=data, many=True)
-            print(serializer)
         else:
             try:
                 obj = Hifz.objects.get(hafiz=self.request.user,
                                        surah_number=data.get('surah_number'),
                                        ayat_number=data.get('ayat_number'))
                 serializer = self.get_serializer(instance=obj, data=data)
-            except ObjectDoesNotExist:
-                raise ObjectDoesNotExist("Object does not exist")
-        print("before validation")
+            except:
+                raise NotFound('Hifz does not exist.')
         if serializer.is_valid():
-            print("before save")
             serializer.save()
-            print("after save")
             return JsonResponse(serializer.data, safe=False, status=201)
         else:
             return JsonResponse(serializer.errors, safe=False, status=400)
 
 
+
+class HifzDelete(generics.DestroyAPIView):
+    serializer_class =  HifzSerializer
+    model = Hifz
+    permission_classes = (IsOwner,)
+
+
+    def get_object(self):
+        surah_number = self.kwargs.get('surah_number')
+        ayat_number = self.kwargs.get('ayat_number')
+        try:
+            return Hifz.objects.get(hafiz=self.request.user,
+                                surah_number=surah_number,
+                                ayat_number=ayat_number)
+        except:
+            raise NotFound('Hifz for deletion does not exist.')
 
 
 class QuranMetaList(generics.ListAPIView):
@@ -213,7 +222,7 @@ class ReviseList(generics.ListAPIView):
         try:
             vicinity = int(vicinity)
             streak = int(streak)
-            blind_count = int(streak)
+            blind_count = int(blind_count)
 
             if surah_number is not None: surah_number = int(surah_number)
             if juz_number is not None: juz_number = int(juz_number)
@@ -236,8 +245,24 @@ class ReviseList(generics.ListAPIView):
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
                 'last_refreshed')
 
-        hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak else range(streak), streak)
+        # check if hifz_to_revise actually has something
+        if len(hifz_to_revise) < 1:
+            raise NotFound('Not enough hifz for revision')
+
+
+        all_hifz_to_revise_indices = range(len(hifz_to_revise))
+        print(all_hifz_to_revise_indices)
+        if len(hifz_to_revise)  >= streak:
+            k_value = streak
+        else:
+            k_value = len(hifz_to_revise)
+
+
+        hifz_random_indices = random.sample(all_hifz_to_revise_indices, k_value)
+
         if len(hifz_to_revise) > 1:
+            print(hifz_to_revise)
+            print(hifz_random_indices)
             hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
         all = QuranMeta.objects.all()
@@ -250,8 +275,15 @@ class ReviseList(generics.ListAPIView):
             end_ayat_number = central_ayat_number + blind_count + vicinity
             if start_ayat_number < 1: start_ayat_number = 1
             if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
+            print("Start number {} end number {} an {} vicit {} blind {}".format(start_ayat_number, end_ayat_number, central_ayat_number, vicinity, blind_count))
             queryset = queryset | all.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)
+            print('loop')
+            for q in queryset:
+                print('{} {}'.format(q.surah_number, q.ayat_number))
+
+        print(len(queryset))
         return queryset
+
 
 @login_required
 def detail(request, surah_number, ayat_number):
@@ -348,14 +380,11 @@ def revise(request):
             surah_number = request.POST.get('surah_number')
             ayat_number = request.POST.getlist('ayat_number[]')
             for an in ayat_number:
-                h = Hifz.objects.filter(hafiz=request.user, surah_number=int(surah_number), ayat_number=int(an))
-                print(h)
-                if len(h) > 0:
-                    h = h[0]
-                    h.last_refreshed = date.today()
+                try:
+                    h = Hifz.objects.get(hafiz=request.user, surah_number=int(surah_number), ayat_number=int(an))
                     h.save()
-                else:
-                    raise Http404()
+                except:
+                    raise Http404('Some hifz does not exist.')
 
             return render(request, 'nasrulhifz/revise.html')
 

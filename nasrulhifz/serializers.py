@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueTogetherValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,11 +30,12 @@ class HifzListSerializer(serializers.ListSerializer):
         for identifier, data in data_mapping.items():
             hifz = hifz_mapping.get(identifier, None)
             if hifz is None:
-                raise ObjectDoesNotExist()
+                raise NotFound('Hifz specified do not exists.')
             else:
                 return_json.append(self.child.update(hifz, data))
 
         return return_json
+
 
 
 
@@ -67,6 +68,7 @@ class HifzSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(
                 queryset=Hifz.objects.all(),
                 fields=('hafiz', 'surah_number', 'ayat_number'),
+                message='Hifz trying to be created must not already exist.'
             )
         ]
 
