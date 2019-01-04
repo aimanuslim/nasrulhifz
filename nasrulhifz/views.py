@@ -251,7 +251,6 @@ class ReviseList(generics.ListAPIView):
 
 
         all_hifz_to_revise_indices = range(len(hifz_to_revise))
-        print(all_hifz_to_revise_indices)
         if len(hifz_to_revise)  >= streak:
             k_value = streak
         else:
@@ -261,8 +260,6 @@ class ReviseList(generics.ListAPIView):
         hifz_random_indices = random.sample(all_hifz_to_revise_indices, k_value)
 
         if len(hifz_to_revise) > 1:
-            print(hifz_to_revise)
-            print(hifz_random_indices)
             hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
         all = QuranMeta.objects.all()
@@ -275,13 +272,7 @@ class ReviseList(generics.ListAPIView):
             end_ayat_number = central_ayat_number + blind_count + vicinity
             if start_ayat_number < 1: start_ayat_number = 1
             if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
-            print("Start number {} end number {} an {} vicit {} blind {}".format(start_ayat_number, end_ayat_number, central_ayat_number, vicinity, blind_count))
             queryset = queryset | all.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)
-            print('loop')
-            for q in queryset:
-                print('{} {}'.format(q.surah_number, q.ayat_number))
-
-        print(len(queryset))
         return queryset
 
 
