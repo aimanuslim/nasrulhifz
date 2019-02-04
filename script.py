@@ -1,7 +1,7 @@
 from nasrulhifz.models import QuranMeta, SurahMeta
 
 
-with open('quran-uthmani-min.txt', 'r', encoding='utf8') as f:
+with open('quran-uthmani.txt', 'r', encoding='utf8') as f:
     text = f.readlines()
 
 import json
