@@ -1,4 +1,4 @@
-from nasrulhifz.models import QuranMeta, SurahMeta
+from nasrulhifz.models import QuranMeta, SurahMeta, User, Hifz
 
 
 with open('quran-uthmani.txt', 'r', encoding='utf8') as f:
@@ -30,6 +30,20 @@ with open('surahs.json', 'r', encoding='utf-8') as f:
 for sm in surahmeta:
     osm = SurahMeta(surah_number=sm.get('number'), name_string=sm.get('name'), surah_ayat_max=sm.get('numberOfAyahs'))
     osm.save()
+
+
+u = User(username='aimanuslim', password='chanayya211')
+u.is_staff = True
+u.is_superuser = True
+
+u.save()
+
+from numpy.random import randint
+for i in range(15):
+    sn = randint(114)
+    lastayat = SurahMeta.objects.get(surah_number=sn).surah_ayat_max
+    h = Hifz(hafiz=u, surah_number=sn, ayat_number=randint(lastayat))
+    h.save()
 
 
 
