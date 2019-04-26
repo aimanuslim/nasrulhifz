@@ -478,7 +478,7 @@ def revise(request):
                         ays = ays.split(" ")
                         revision_strings = qm[0].ayat_string.split(" ")
 
-                        if show_word is None: show_word = [False for i in ays]
+                        if show_word is None: show_word = [False if (i > 1 and i < len(ays) - 2) else 'Clue'  for i, a in enumerate(ays)]
 
                         print(show_word)
                         # get information about the ayat
