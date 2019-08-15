@@ -461,19 +461,26 @@ def revise(request):
 
                 for i in range(proximity_tested_ayat * 2 + 1):
                     if proximity_ayat_number > 0 and proximity_ayat_number <= upper_limit:
-                        h = Hifz.objects.filter(hafiz=request.user, surah_number=hifz.surah_number, ayat_number=proximity_ayat_number)
-                        h= h[0]
-                        wordindexes = h.wordindex_set.all()
+                        # print("Number i: {} prox: {} upper: {}".format(i, proximity_ayat_number, upper_limit))
+                        try:
+                            
+                            h = Hifz.objects.get(hafiz=request.user, surah_number=hifz.surah_number, ayat_number=proximity_ayat_number)
+                            # h= h[0] # TODO: fix error with out of index. maybe need to pull from quranmeta instead of from hifz if the hifz doesnt exist when looking around the ayat that is currently being tested.
+                            wordindexes = h.wordindex_set.all()
 
-                        show_word = [False if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in
-                                     range(len(wordindexes))]
-
-                        # find the string for the ayat
+                            show_word = [False if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in
+                                        range(len(wordindexes))]
+                            print("Got here")
+                        except: 
+                            show_word = None
                         qm = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=proximity_ayat_number)
                         ays = qm[0].ayat_string
                         ays = ays.split(" ")
                         revision_strings = qm[0].ayat_string.split(" ")
 
+                        if show_word is None: show_word = [False if (i > 1 and i < len(ays) - 2) else 'Clue'  for i, a in enumerate(ays)]
+
+                        print(show_word)
                         # get information about the ayat
                         temp_hifz_meta = {'surah_number': hifz.surah_number, 'surah_name': getSurahString(hifz.surah_number),
                                      'ayat_number': proximity_ayat_number}
