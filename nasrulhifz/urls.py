@@ -21,7 +21,10 @@ urlpatterns = [
     path('api/quranmeta/list/', views.QuranMetaList.as_view()),
     path('api/quranmeta/<int:surah_number>/<int:ayat_number>/', views.QuranMetaDetail.as_view()),
     path('api/surahmeta/<int:surah_number>/', views.SurahMetaDetail.as_view()),
-    path('api/revise/', views.ReviseList.as_view()),
+    # path('api/revise/', views.ReviseList.as_view()),
+
+    path('api/revise/', views.ReviseCustomView.as_view()),
+
 
     # Authentication for API
     path('api-token-auth/', obtain_auth_token),

@@ -19,6 +19,7 @@ from datetime import date
 from .forms import CustomUserCreationForm, ReviseForm
 
 from rest_framework import generics, status, mixins, parsers
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
@@ -202,14 +203,87 @@ class QuranMetaDetail(generics.RetrieveAPIView):
 
         return QuranMeta.objects.get(surah_number=surah_number, ayat_number=ayat_number)
 
+
+
 class SurahMetaDetail(generics.RetrieveAPIView):
     serializer_class = SurahMetaSerializer
     def get_object(self):
         surah_number = self.kwargs.get('surah_number')
         return SurahMeta.objects.get(surah_number=surah_number)
 
+class ReviseCustomView(APIView):
+    def get(self, request):
+        surah_number = self.request.query_params.get('surah_number', None)
+        juz_number = self.request.query_params.get('juz_number', None)
+        vicinity = self.request.query_params.get('vicinity', 1)
+        streak = self.request.query_params.get('streak_length', 1)
+        blind_count = self.request.query_params.get('blind_count', 1)
+
+        try:
+            vicinity = int(vicinity)
+            streak = int(streak)
+            blind_count = int(blind_count)
+
+            if surah_number is not None: surah_number = int(surah_number)
+            if juz_number is not None: juz_number = int(juz_number)
+        except:
+            content = {'message': 'parameter invalid'}
+            return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
+
+        if juz_number is not None and surah_number is not None:
+            content = {'message': 'cannot have both surah and juz numbers'}
+            return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
+
+        # free mode
+        if juz_number is None and surah_number is None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')
+        # juz mode
+        elif juz_number is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by('last_refreshed')
+        # surah mode
+        elif surah_number is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
+                'last_refreshed')
+
+        # check if hifz_to_revise actually has something
+        if len(hifz_to_revise) < 1:
+            raise NotFound('Not enough hifz for revision')
+
+
+        all_hifz_to_revise_indices = range(len(hifz_to_revise))
+        if len(hifz_to_revise)  >= streak:
+            k_value = streak
+        else:
+            k_value = len(hifz_to_revise)
+
+
+        hifz_random_indices = random.sample(all_hifz_to_revise_indices, k_value)
+
+        if len(hifz_to_revise) > 1:
+            hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
+
+        all = QuranMeta.objects.all()
+        queryset = QuranMeta.objects.none()
+
+        list_of_streaks = []
+        for i, hifz in enumerate(hifz_to_revise):
+            surah_meta = SurahMeta.objects.get(surah_number=hifz.surah_number)
+            central_ayat_number = hifz.ayat_number
+            start_ayat_number = central_ayat_number - blind_count - vicinity
+            end_ayat_number = central_ayat_number + blind_count + vicinity
+            if start_ayat_number < 1: start_ayat_number = 1
+            if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
+            currset = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)  
+            currsr = QuranMetaSerializer(currset, many=True)   
+            currjson = {"streak_number": i, "data": currsr.data}
+            list_of_streaks.append(currjson)
+        
+        return Response(list_of_streaks)
+
+
 class ReviseList(generics.ListAPIView):
     serializer_class = QuranMetaSerializer
+    # serializer_class = QuranMetaListSerializer
     permission_classes = (IsOwner,)
 
     def get_queryset(self):
