@@ -271,11 +271,13 @@ class ReviseCustomView(APIView):
             central_ayat_number = hifz.ayat_number
             start_ayat_number = central_ayat_number - blind_count - vicinity
             end_ayat_number = central_ayat_number + blind_count + vicinity
+            start_blind_ayat_number = central_ayat_number - blind_count
+            end_blind_ayat_number = central_ayat_number + blind_count
             if start_ayat_number < 1: start_ayat_number = 1
             if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
             currset = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)  
             currsr = QuranMetaSerializer(currset, many=True)   
-            currjson = {"streak_number": i, "data": currsr.data}
+            currjson = {"test_index": [i for i in range(start_blind_ayat_number, end_blind_ayat_number + 1)], "data": currsr.data}
             list_of_streaks.append(currjson)
         
         return Response(list_of_streaks)

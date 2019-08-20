@@ -75,10 +75,22 @@ class HifzSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
 class QuranMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuranMeta
         fields = ('surah_number', 'ayat_number', 'ayat_string', 'juz_number')
+        # list_serializer_class = QuranMetaListSerializer
+        depth = 2
+
+class QuranMetaListSerializer(serializers.Serializer):
+    data = serializers.ListField(child=QuranMetaSerializer())
+    fields='__all__'
+
+
 
 class SurahMetaSerializer(serializers.ModelSerializer):
     class Meta:
