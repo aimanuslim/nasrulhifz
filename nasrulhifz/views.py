@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponseNotFound
+from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponseNotFound, HttpResponse
 from django.shortcuts import render
 from django.views import generic
 from django.urls import reverse_lazy
@@ -100,7 +100,7 @@ class AyatListView(generic.ListView):
         else:
             return Http404()
 
-
+# API for creating, updating, saving new hifzs
 class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = HifzSerializer
     permission_classes = (IsOwner,)
@@ -128,7 +128,6 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
             serializer = self.get_serializer(data=data, many=True)
         else:
             serializer = self.get_serializer(data=data)
-
         if serializer.is_valid():
             serializer.save(hafiz=request.user)
             return JsonResponse(serializer.data, safe=False, status=201)
@@ -149,16 +148,37 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
                                        ayat_number=data.get('ayat_number'))
                 serializer = self.get_serializer(instance=obj, data=data)
             except:
-                raise NotFound('Hifz does not exist.')
+                raise NotFound('Hifz to be updated does not exist.')
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, safe=False, status=201)
         else:
             return JsonResponse(serializer.errors, safe=False, status=400)
+    
+
+
+class HifzDeleteMultiple(generics.GenericAPIView, mixins.DestroyModelMixin):
+    serializer_class = HifzSerializer
+    permission_classes = (IsOwner,)
+
+    def delete(self, request, *args, **kwargs):
+        data = parsers.JSONParser().parse(request)
+        for d in data:
+            if d.get('surah_number') == None or d.get('ayat_number') == None:
+                return HttpResponseBadRequest("Either ayat number or surah number is missing in body.")
+            try:
+                hobj = Hifz.objects.get(hafiz=self.request.user, surah_number=d['surah_number'], ayat_number=d['ayat_number'])
+                hobj.delete()
+            except:
+                raise NotFound('Hifz for deletion does not exist.')
+        
+        return HttpResponse("Deletion successfull.")
 
 
 
-class HifzDelete(generics.DestroyAPIView):
+
+
+class HifzDeleteSingle(generics.DestroyAPIView):
     serializer_class =  HifzSerializer
     model = Hifz
     permission_classes = (IsOwner,)
@@ -173,6 +193,14 @@ class HifzDelete(generics.DestroyAPIView):
                                 ayat_number=ayat_number)
         except:
             raise NotFound('Hifz for deletion does not exist.')
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        surah_number = instance.surah_number
+        ayat_number = instance.ayat_number
+        self.perform_destroy(instance)
+        return HttpResponse('Deletion surah number: {}  ayat: {} succeeded'.format(surah_number, ayat_number))
+
 
 
 class QuranMetaList(generics.ListAPIView):

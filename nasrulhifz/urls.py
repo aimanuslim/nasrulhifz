@@ -17,7 +17,8 @@ urlpatterns = [
 
     # API related uri
     path('api/', views.HifzList.as_view()),
-    path('api/delete/<int:surah_number>/<int:ayat_number>/', views.HifzDelete.as_view()),
+    path('api/delete/<int:surah_number>/<int:ayat_number>/', views.HifzDeleteSingle.as_view()),
+    path('api/delete/', views.HifzDeleteMultiple.as_view()),
     path('api/quranmeta/list/', views.QuranMetaList.as_view()),
     path('api/quranmeta/<int:surah_number>/<int:ayat_number>/', views.QuranMetaDetail.as_view()),
     path('api/surahmeta/<int:surah_number>/', views.SurahMetaDetail.as_view()),
