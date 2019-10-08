@@ -140,7 +140,7 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
             objs = Hifz.objects.filter(hafiz=self.request.user)
             for d in data:
                 d['hafiz'] = {'username': self.request.user.username}
-            serializer = self.get_serializer(instance=objs, data=data, many=True)
+            serializer = self.get_serializer(instance=objs, data=data, many=True, partial=True)
         else:
             try:
                 obj = Hifz.objects.get(hafiz=self.request.user,
@@ -161,7 +161,7 @@ class HifzDeleteMultiple(generics.GenericAPIView, mixins.DestroyModelMixin):
     serializer_class = HifzSerializer
     permission_classes = (IsOwner,)
 
-    def delete(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         data = parsers.JSONParser().parse(request)
         for d in data:
             if d.get('surah_number') == None or d.get('ayat_number') == None:
