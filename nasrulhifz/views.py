@@ -18,13 +18,23 @@ from datetime import date
 
 from .forms import CustomUserCreationForm, ReviseForm
 
-from rest_framework import generics, status, mixins, parsers
+from rest_framework import generics, status, mixins, parsers, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 
 from .permissions import IsOwner
+from django.contrib.auth.models import User
+
+
+class CreateUserView(generics.CreateAPIView):
+
+    model = User
+    permission_classes = [
+        permissions.AllowAny # Or anon users can't register
+    ]
+    serializer_class = UserSerializer
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm

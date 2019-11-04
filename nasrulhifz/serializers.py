@@ -7,9 +7,19 @@ from rest_framework.exceptions import NotFound
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+        )
+
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
     class Meta:
         model = User
-        fields = ('id', 'username')
+        fields = ('id', 'username', 'password')
         extra_kwargs = {
             'username': {
                 'validators': [UnicodeUsernameValidator()],

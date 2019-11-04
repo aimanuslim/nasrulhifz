@@ -30,4 +30,6 @@ urlpatterns = [
     # Authentication for API
     path('api-token-auth/', obtain_auth_token),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/register/', views.CreateUserView.as_view()),
+
 ]
