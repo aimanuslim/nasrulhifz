@@ -1,7 +1,7 @@
 from .models import Hifz, QuranMeta, SurahMeta
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework.exceptions import NotFound
 
@@ -13,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
         )
 
+
         user.set_password(validated_data['password'])
         user.save()
         return user
@@ -22,7 +23,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'password')
         extra_kwargs = {
             'username': {
-                'validators': [UnicodeUsernameValidator()],
+                'validators': [
+                    UnicodeUsernameValidator(),
+                    UniqueValidator(
+                        queryset=User.objects.all(),
+                        message="Username already registered. Please select a new one."),
+                    
+                    ],
             }
         }
 
