@@ -261,7 +261,11 @@ class SurahMetaDetail(generics.RetrieveAPIView):
 class ReviseCustomView(APIView):
     def get(self, request):
         surah_number = self.request.query_params.get('surah_number', None)
+        surah_number_upperbound = self.request.query_params.get('surah_number_upperbound', None)
+        surah_number_lowerbound = self.request.query_params.get('surah_number_lowerbound', None)
         juz_number = self.request.query_params.get('juz_number', None)
+        juz_number_upperbound = self.request.query_params.get('juz_number_upperbound', None)
+        juz_number_lowerbound = self.request.query_params.get('juz_number_lowerbound', None)
         vicinity = self.request.query_params.get('vicinity', 1)
         streak = self.request.query_params.get('streak_length', 1)
         blind_count = self.request.query_params.get('blind_count', 1)
@@ -272,7 +276,11 @@ class ReviseCustomView(APIView):
             blind_count = int(blind_count)
 
             if surah_number is not None: surah_number = int(surah_number)
+            if surah_number_upperbound is not None: surah_number_upperbound = int(surah_number_upperbound)
+            if surah_number_lowerbound is not None: surah_number_lowerbound = int(surah_number_lowerbound)
             if juz_number is not None: juz_number = int(juz_number)
+            if juz_number_upperbound is not None: juz_number_upperbound = int(juz_number_upperbound)
+            if juz_number_lowerbound is not None: juz_number_lowerbound = int(juz_number_lowerbound)
         except:
             content = {'message': 'parameter invalid'}
             return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
@@ -282,7 +290,7 @@ class ReviseCustomView(APIView):
             return Response(data=content, status=status.HTTP_400_BAD_REQUEST)
 
         # free mode
-        if juz_number is None and surah_number is None:
+        if juz_number is None and surah_number is None and surah_number_lowerbound is None and surah_number_upperbound is None and juz_number_lowerbound is None and juz_number_lowerbound is None:
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')
         # juz mode
         elif juz_number is not None:
@@ -290,6 +298,12 @@ class ReviseCustomView(APIView):
         # surah mode
         elif surah_number is not None:
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
+                'last_refreshed')
+        elif surah_number_lowerbound is not None and surah_number_upperbound is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number__range=(surah_number_lowerbound, surah_number_upperbound)).order_by(
+                'last_refreshed')
+        elif juz_number_lowerbound is not None and juz_number_upperbound is not None:
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number__range=(juz_number_lowerbound, juz_number_upperbound)).order_by(
                 'last_refreshed')
 
         # check if hifz_to_revise actually has something
