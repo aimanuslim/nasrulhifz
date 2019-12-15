@@ -1,9 +1,12 @@
 from .models import Hifz, QuranMeta, SurahMeta
 from rest_framework import serializers
+from rest_framework.serializers import as_serializer_error
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework.exceptions import NotFound
+from rest_framework.fields import empty
+from django.core.exceptions import ValidationError
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,18 +28,17 @@ class UserSerializer(serializers.ModelSerializer):
             'username': {
                 'validators': [
                     UnicodeUsernameValidator(),
-                    UniqueValidator(
-                        queryset=User.objects.all(),
-                        message="Username already registered. Please select a new one."),
+                    #Note: uniquevalidator is causing multiple updates to fail. So neeed to remove this.
+                    # Even without uniquevalidator, registering a user with same username in database will fail, so we dont really need to include this uniquevalidator then.
+                    # UniqueValidator(
+                    #     queryset=User.objects.all(),
+                    #     message="Username already registered. Please select a new one."),
                     
                     ],
             }
         }
 
 class HifzListSerializer(serializers.ListSerializer):
-
-    class Meta:
-        validators = ()
 
     def update(self, instance, validated_data):
 
