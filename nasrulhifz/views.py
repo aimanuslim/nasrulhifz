@@ -22,6 +22,7 @@ from rest_framework import generics, status, mixins, parsers, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.authtoken.models import Token
 
 
 from .permissions import IsOwner
@@ -775,3 +776,27 @@ def getSurahString(surah_number):
     sm = SurahMeta.objects.filter(surah_number=surah_number)
     sm = sm[0]
     return sm.name_string
+
+
+class ObtainAuthToken(APIView):
+    throttle_classes = ()
+    permission_classes = ()
+    parser_classes = (
+        parsers.FormParser,
+        parsers.MultiPartParser,
+        parsers.JSONParser,
+    )
+
+    renderer_classes = (renderers.JSONRenderer,)
+
+    def post(self, request):
+        serializer = AuthCustomTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        content = {
+            'token': unicode(token.key),
+        }
+
+        return Response(content)

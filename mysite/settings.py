@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+     'django_rest_passwordreset',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -130,6 +131,7 @@ STATICFILES_DIRS = [
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/nasrulhifz/'
+
 
 # For seeing email sent at console.
 # TODO: remove when setting up email later

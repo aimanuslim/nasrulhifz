@@ -7,13 +7,18 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework.exceptions import NotFound
 from rest_framework.fields import empty
 from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 
+
+class AuthCustomTokenSerializer(serializers.):
+    email = serializers.CharFiel
 
 class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
+            email=validated_data['email']
         )
 
 
@@ -23,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password')
+        fields = ('id', 'username', 'email','password')
         extra_kwargs = {
             'username': {
                 'validators': [
@@ -35,6 +40,11 @@ class UserSerializer(serializers.ModelSerializer):
                     #     message="Username already registered. Please select a new one."),
                     
                     ],
+            },
+            'email': {
+                'validators': [
+                    EmailValidator()
+                ]
             }
         }
 
