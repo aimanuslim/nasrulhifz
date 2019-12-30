@@ -23,7 +23,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         'current_user': reset_password_token.user,
         'username': reset_password_token.user.username,
         'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(reverse('password_reset:reset-password-request'), reset_password_token.key)
+        'reset_password_url': "{}?token={}".format(reverse('nasrulhifz:password_reset:reset-password-request'), reset_password_token.key)
     }
 
     # render email text
@@ -42,3 +42,4 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     )
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()
+    print("Email sent")

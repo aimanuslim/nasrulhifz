@@ -28,12 +28,12 @@ urlpatterns = [
 
 
     # Authentication for API
-    path('api-token-auth/', obtain_auth_token),
+    path('api-token-auth/', views.ObtainAuthToken.as_view()),
     path('api-auth/', include('rest_framework.urls')),
     path('api/register/', views.CreateUserView.as_view()),
 
     # password reset api
-    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('api/password_reset/', include('django_rest_passwordreset.urls'), name='password_reset'),
 
 
 ]

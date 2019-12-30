@@ -18,7 +18,7 @@ from datetime import date
 
 from .forms import CustomUserCreationForm, ReviseForm
 
-from rest_framework import generics, status, mixins, parsers, permissions
+from rest_framework import generics, status, mixins, parsers, permissions, renderers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
@@ -35,7 +35,8 @@ class CreateUserView(generics.CreateAPIView):
         try:
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-        except:
+        except Exception as E:
+            # print(E)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -793,10 +794,14 @@ class ObtainAuthToken(APIView):
         serializer = AuthCustomTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        print(user)
+        if not user:
+            raise NotFound('User does not exist.')
         token, created = Token.objects.get_or_create(user=user)
 
         content = {
-            'token': unicode(token.key),
+            'token': token.key,
         }
 
         return Response(content)
+    

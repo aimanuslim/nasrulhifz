@@ -8,16 +8,47 @@ from rest_framework.exceptions import NotFound
 from rest_framework.fields import empty
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
+from django.contrib.auth import authenticate
+import re
+from email.utils import parseaddr
+
+def emailValid(email):
+    rettuples = parseaddr(email)
+    if len(rettuples[1]) > 0:
+            return True
+    return False
 
 
-class AuthCustomTokenSerializer(serializers.):
-    email = serializers.CharFiel
+class AuthCustomTokenSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if email and password:
+            if not emailValid(email): 
+                msg = 'Email format invalid.'
+                raise ValidationError(msg)
+            else:
+                user = authenticate(username=email, password=password)
+                
+        else:
+            msg = 'Email and/or password parameters missing'
+            raise ValidationError(msg)
+    
+        attrs['user'] = user
+        return attrs
+        
+            
+
 
 class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create(
-            username=validated_data['username'],
+            username=validated_data['email'],
             email=validated_data['email']
         )
 
@@ -28,22 +59,21 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email','password')
+        fields = ('id', 'email','password')
+        
         extra_kwargs = {
+            'password': {'write_only': True},
             'username': {
                 'validators': [
-                    UnicodeUsernameValidator(),
                     #Note: uniquevalidator is causing multiple updates to fail. So neeed to remove this.
                     # Even without uniquevalidator, registering a user with same username in database will fail, so we dont really need to include this uniquevalidator then.
                     # UniqueValidator(
                     #     queryset=User.objects.all(),
                     #     message="Username already registered. Please select a new one."),
-                    
                     ],
             },
             'email': {
                 'validators': [
-                    EmailValidator()
                 ]
             }
         }
