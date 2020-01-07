@@ -33,7 +33,7 @@ urlpatterns = [
     path('api/register/', views.CreateUserView.as_view()),
 
     # password reset api
-    path('api/password_reset/', include('django_rest_passwordreset.urls'), name='password_reset'),
+    # path('api/password_reset/', include('django_rest_passwordreset.urls'), name='password_reset'),
 
 
 ]

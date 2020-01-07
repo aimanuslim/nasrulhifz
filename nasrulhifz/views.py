@@ -12,6 +12,7 @@ from .forms import HifzForm
 from numpy import take
 
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import FormView
 
 import random
 from datetime import date
@@ -805,3 +806,4 @@ class ObtainAuthToken(APIView):
 
         return Response(content)
     
+

@@ -23,7 +23,10 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         'current_user': reset_password_token.user,
         'username': reset_password_token.user.username,
         'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(reverse('nasrulhifz:password_reset:reset-password-request'), reset_password_token.key)
+        'reset_password_url': "{}?token={}".format(reverse('nasrulhifz:password_reset:reset-password-request'), reset_password_token.key),
+        'password_reset_confirm': "{}?token={}".format(reverse('mysite:password_reset:reset-password-request'), reset_password_token.key),
+        'token': reset_password_token.key,
+        'uidb64': reset_password_token.user.id
     }
 
     # render email text
