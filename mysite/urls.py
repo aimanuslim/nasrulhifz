@@ -6,6 +6,7 @@ from nasrulhifz.views import SignUp
 urlpatterns = [
     path('nasrulhifz/', include('nasrulhifz.urls')),
     path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/signup/', SignUp.as_view(), name='signup'),
 ]
