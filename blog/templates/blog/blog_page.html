@@ -5,7 +5,11 @@
 {% block body_class %}template-blogpage{% endblock %}
 
 {% block content %}
+<section class="post">
+    <header class="post-header">
     <h1>{{ page.title }}</h1>
+
+    <p class="post-meta">
     <p class="meta">{{ page.date }}</p>
 
     
@@ -15,7 +19,7 @@
             <ul>
                 {% for category in categories %}
                     <li style="display: inline">
-                        <a href="{% slugurl 'category' %}?category={{ category.name }}"><button type="button">{{ category.name }}</button></a>
+                        <a class="post-category post-category-design" href="{% slugurl 'category' %}?category={{ category.name }}">{{ category.name }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -23,6 +27,9 @@
     {% endwith %}
 
     {% comment %} <div class="intro">{{ page.intro }}</div> {% endcomment %}
+    </header>
+
+
 
     {{ page.body|richtext }}
 
@@ -39,6 +46,7 @@
 
 
     <p><a href="{{ page.get_parent.url }}">Return to blog</a></p>
+</section>
     
 
 {% endblock %}
