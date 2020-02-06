@@ -25,6 +25,9 @@ class Glyphs(models.Model):
     class Meta:
         managed = False
         db_table = 'glyphs'
+    
+    def __str__(self):
+        return "Page: {} Line: {} Sura: {} Aya: {}".format(self.page_number, self.line_number, self.sura_number, self.ayah_number)
 
 # Create your models here.
 class Hifz(models.Model):
