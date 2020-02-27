@@ -1,11 +1,15 @@
 from nasrulhifz.models import QuranMeta, SurahMeta, User, Hifz, WordIndex
 
-u = User(username='aimanuslim')
-u.set_password('chanayya211')
-u.is_staff = True
-u.is_superuser = True
+u = User.objects.get(username='aimanuslim@gmail.com')
 
-u.save()
+if u is None:
+
+    u = User(username='aimanuslim@gmail')
+    u.set_password('chanayya211')
+    u.is_staff = True
+    u.is_superuser = True
+
+    u.save()
 
 from numpy.random import randint
 for i in range(15):
