@@ -6,19 +6,19 @@ from django.contrib.auth.models import User
 from django.core import validators
 
 class CustomUserCreationForm(UserCreationForm):
-    username = forms.CharField(max_length=30)
+    # username = forms.CharField(max_length=30)
     email = forms.EmailField(max_length=200)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2', )
+        fields = ('email', 'password1', 'password2', )
 
     def __init__(self , *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control form-control-lg m-4 custom-size'
-            if visible.field == self.fields['username']:
-                visible.field.widget.attrs['placeholder'] = 'Username'
+            # if visible.field == self.fields['username']:
+            #     visible.field.widget.attrs['placeholder'] = 'Username'
 
             if visible.field == self.fields['email']:
                 visible.field.widget.attrs['placeholder'] = 'Email'
@@ -28,7 +28,13 @@ class CustomUserCreationForm(UserCreationForm):
 
             if visible.field == self.fields['password2']:
                 visible.field.widget.attrs['placeholder'] = 'Reenter Password'
-
+    def save(self, commit=True):
+        user = super(UserCreationForm, self).save(commit=False)
+        user.username = user.email
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
 
 
 # unused
