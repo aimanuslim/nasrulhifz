@@ -8,7 +8,6 @@ from django.conf import settings
 urlpatterns = [
     path('nasrulhifz/', include('nasrulhifz.urls')),
     path('admin/', admin.site.urls),
-    path('', include('blog.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/signup/', SignUp.as_view(), name='signup'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
