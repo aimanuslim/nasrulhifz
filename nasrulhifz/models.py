@@ -37,6 +37,7 @@ class Hifz(models.Model):
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
     juz_number = models.SmallIntegerField(blank=True)
     average_difficulty = models.SmallIntegerField()
+    revised_count = models.IntegerField(_("Revised Count"), default=1)
 
 
     def save(self, force_insert=False, force_update=False, using=None,

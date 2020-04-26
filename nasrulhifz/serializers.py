@@ -114,13 +114,14 @@ class HifzSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.average_difficulty = validated_data.get('average_difficulty', instance.average_difficulty)
         instance.last_refreshed = validated_data.get('last_refreshed', instance.last_refreshed)
+        instance.revised_count = validated_data.get('revised_count', instance.revised_count)
         instance.save()
         return instance
 
     class Meta:
         model = Hifz
         extra_kwargs = {'juz_number': {'read_only': True}}
-        fields = ('hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty')
+        fields = ('hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty', 'revised_count')
         list_serializer_class = HifzListSerializer
         # seems like validators doesnt check if you are updating objects.
         validators = [
