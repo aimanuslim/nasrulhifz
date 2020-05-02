@@ -103,7 +103,7 @@ class HifzSerializer(serializers.ModelSerializer):
         write_only=True,
         default=serializers.CurrentUserDefault()
     )
-    is_revised = serializers.BooleanField(write_only=True)
+    is_revised = serializers.BooleanField(write_only=True, required=False)
 
     @classmethod
     def many_init(cls, *args, **kwargs):
@@ -124,7 +124,7 @@ class HifzSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hifz
-        extra_kwargs = {'juz_number': {'read_only': True}, 'is_revised': {'read_only': True}}
+        extra_kwargs = {'juz_number': {'read_only': True}, 'is_revised': {'read_only': True, 'required': False}}
         fields = ('hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty', 'revised_count', 'is_revised')
         list_serializer_class = HifzListSerializer
         # seems like validators doesnt check if you are updating objects.
