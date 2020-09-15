@@ -37,4 +37,4 @@ urlpatterns = [
     # path('api/password_reset/', include('django_rest_passwordreset.urls'), name='password_reset'),
 
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.DATA_URL, document_root=settings.DATA_ROOT)

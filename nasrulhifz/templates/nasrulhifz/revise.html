@@ -29,7 +29,7 @@
 
     <div class="row justify-content-center">
         <div class="mb-4 col-md-12 align-self-center">
-            Please enter the streak length.
+            Please enter the streak length. (This is the number of test you will be given for your selected mode)
         </div>
     </div>
 
@@ -44,35 +44,25 @@
 
     <div class="row justify-content-center">
         <div class="mb-4 col-md-12 align-self-center">
-            Please enter the number of ayats needed to be shown for context.
+            Please enter the number of ayats to be blinded around the tested ayat. (Example: if you want 1 ayat before and after the ayat tested to be blinded as well, enter 1 in this box.)
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-md-12 align-self-center">
-            <input type="number" class="mb-4 form-control" id="context-count" name="context-count" value="1" max="4" min="1" required="true">
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="mb-4 col-md-12 align-self-center">
-            Please enter the range of ayat that is going to be tested.
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-12 align-self-center">
-            <input type="number" class="mb-4 form-control" id="proximity-count" name="proximity-count" value="1" max="4" min="1" required="true">
+            <input type="number" class="mb-4 form-control" id="blind-count" name="blind-count" value="1" max="4" min="1" required="true">
             <button  class="btn btn-outline-primary" type="submit">Start</button>
         </div>
     </div>
+
+
 
 </form>
 
 {% endif %}
 
 
-{% if revision_cards and revision_cards|length > 0 %}
+{% if meta and meta|length > 0 %}
 <div id="revise_carousel" class="carousel slide" data-ride="carousel" data-interval="0">
 
 
@@ -90,7 +80,9 @@
 
     <div class="carousel-inner">
 
-        {% for hifzinfo, cardSet in revision_cards %}
+        {% for url, boundary_list in meta %}
+
+
             {% if forloop.first %}
                 <div class="carousel-item active ">
             {% else %}
@@ -104,6 +96,8 @@
 
         </div>
     </div>
+
+
 
 
     <div class="row justify-content-center align-items-center my-2">
@@ -135,12 +129,42 @@
 
 {% endif %}
 
-{% if not revision_cards and not mode_select %}
+{% if not meta and not mode_select %}
 
 <h1>No hifz matches those criteria.</h1>
 
 {% endif %}
 
 
+<script>
+
+    {% for url, boundary_list in meta %}
+            img{{forloop.counter}} = new Image()
+            img{{forloop.counter}}.src = "{{ url }}"
+            img{{forloop.counter}}.onload = function(){
+            var c{{forloop.counter}} = document.getElementById("myCanvas{{forloop.counter}}");
+            c{{forloop.counter}}.width = img{{forloop.counter}}.naturalWidth
+            c{{forloop.counter}}.height = img{{forloop.counter}}.naturalHeight
+            var ctx{{forloop.counter}} = c{{forloop.counter}}.getContext("2d");
+            ctx{{forloop.counter}}.drawImage(img{{forloop.counter}} ,0,0)
+            scale{{forloop.counter}} = 1260 / img{{forloop.counter}}.width
+        {% for data in boundary_list %}
+            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.97
+            ctx{{forloop.parentloop.counter}}.fillStyle = "#4ff540"
+
+            ctx{{forloop.parentloop.counter}}.fillRect({{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} )
+            {% comment %} ctx{{forloop.parentloop.counter}}.moveTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})    
+            ctx{{forloop.parentloop.counter}}.lineTo({{ data.1 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})
+            ctx{{forloop.parentloop.counter}}.lineTo({{ data.1 }} / scale{{forloop.parentloop.counter}}, {{ data.3 }} / scale{{forloop.parentloop.counter}})
+            ctx{{forloop.parentloop.counter}}.lineTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.3 }} / scale{{forloop.parentloop.counter}})
+            ctx{{forloop.parentloop.counter}}.lineTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})    
+            ctx{{forloop.parentloop.counter}}.stroke() {% endcomment %}
+
+        {% endfor %}
+            }
+    {% endfor %}
+</script>
+
 
 {% endblock %}
+

@@ -4,36 +4,14 @@
     <button id="ayat-number" type="button" class="label-button btn btn-light">{{ hifzinfo.ayat_number }}</button>
 </div>
 
-<p class="uthm2 text-center ayat-box" dir="rtl" style="text-align:justify">
+
+
+<canvas id="myCanvas{{forloop.counter}}" width=500 height=500 ></canvas>
 
 
 
-{% for metaHifz, stringsAndSMeta in cardSet %}
-    {% for word, metaShown in stringsAndSMeta %}
-            {% if metaShown == True %}
-                <span class="m-1">{{ word }}</span>
-            {% endif %}
-            {% if metaShown == False %}
-                <span class="hidden-word m-1" style="display: none">{{ word }}</span>
-    <span class="blank-lines">____</span>
-            {% endif %}
-
-            {% if metaShown == 'Clue' %}
-                <span class="clue-word m-1" style="display: none">{{ word }}</span>
-                <span class="clue-blank-lines">____</span>
-            {% endif %}
-
-        {% endfor %}
-
-    {% if stringsAndSMeta.0.1 == False or stringsAndSMeta.0.1 == 'Clue' %}
-    <button class="ayat-mark btn btn-light mx-1 hidden-ayat"> {{ metaHifz.ayat_number }} </button>
-    {% else %}
-    <button class="ayat-mark btn btn-light mx-1"> {{ metaHifz.ayat_number }} </button>
-    {% endif %}
-
-{% endfor %}
 
 
 
-</p>
+
 
