@@ -80,7 +80,7 @@
 
     <div class="carousel-inner">
 
-        {% for url, boundary_list in meta %}
+        {% for url, boundary_list, surah_name, ayat_number in meta %}
 
 
             {% if forloop.first %}
@@ -138,7 +138,7 @@
 
 <script>
 
-    {% for url, boundary_list in meta %}
+    {% for url, boundary_list, surah_name, ayat_number  in meta %}
             img{{forloop.counter}} = new Image()
             img{{forloop.counter}}.src = "{{ url }}"
             img{{forloop.counter}}.onload = function(){
@@ -149,16 +149,10 @@
             ctx{{forloop.counter}}.drawImage(img{{forloop.counter}} ,0,0)
             scale{{forloop.counter}} = 1260 / img{{forloop.counter}}.width
         {% for data in boundary_list %}
-            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.97
+            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.87
             ctx{{forloop.parentloop.counter}}.fillStyle = "#4ff540"
 
             ctx{{forloop.parentloop.counter}}.fillRect({{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} )
-            {% comment %} ctx{{forloop.parentloop.counter}}.moveTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})    
-            ctx{{forloop.parentloop.counter}}.lineTo({{ data.1 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})
-            ctx{{forloop.parentloop.counter}}.lineTo({{ data.1 }} / scale{{forloop.parentloop.counter}}, {{ data.3 }} / scale{{forloop.parentloop.counter}})
-            ctx{{forloop.parentloop.counter}}.lineTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.3 }} / scale{{forloop.parentloop.counter}})
-            ctx{{forloop.parentloop.counter}}.lineTo({{ data.0 }} / scale{{forloop.parentloop.counter}}, {{ data.2 }} / scale{{forloop.parentloop.counter}})    
-            ctx{{forloop.parentloop.counter}}.stroke() {% endcomment %}
 
         {% endfor %}
             }

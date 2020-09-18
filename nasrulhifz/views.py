@@ -505,19 +505,23 @@ def enter(request):
         return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
 def get_url_given_surah_number_and_ayat_number(request, surah_number, ayat_number):
+    return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(get_page_number_given_ayat_number(surah_number, ayat_number))
+
+def get_page_number_given_ayat_number(surah_number, ayat_number):
     conn = sqlite3.connect("data\\ayahinfo_1260.db")
     res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
     data = res.fetchone()
     page_number = data[0]
-    return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(page_number)
+    return page_number
 
-def get_boundaries_given_list_of_ayat_for_surah(surah_number, ayatlist):
+def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatlist):
     conn = sqlite3.connect("data\\ayahinfo_1260.db")
     boundary_list = list()
     for ayat_number in ayatlist :
-        res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))    
+        res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(page_number, surah_number, ayat_number))    
         data = res.fetchall()
         unique_line_number = set([gdata[1] for gdata in data])
+        print("Ayat number {} Unique line numbers {}".format(ayat_number, unique_line_number))
         for ln in unique_line_number:
             boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
         )
@@ -577,7 +581,11 @@ def revise(request):
             meta = []
             for hifz in hifz_to_revise:
                 url = get_url_given_surah_number_and_ayat_number(request, hifz.surah_number, hifz.ayat_number)
+                sm = SurahMeta.objects.filter(surah_number=hifz.surah_number)
+                sm = sm[0]
+                surah_name = sm.name_string
 
+                page_number = get_page_number_given_ayat_number(hifz.surah_number, hifz.ayat_number)
 
                 blinded_ayats = []
                 for i in range(blind_count):
@@ -585,10 +593,12 @@ def revise(request):
                     blinded_ayats.append(hifz.ayat_number - i - 1)
                 blinded_ayats.append(hifz.ayat_number)
                 
-                boundaries_for_current_tested_hifz = get_boundaries_given_list_of_ayat_for_surah(hifz.surah_number, blinded_ayats)
+                boundaries_for_current_tested_hifz = get_boundaries_given_list_of_ayat_for_surah(page_number, hifz.surah_number, blinded_ayats)
                 meta.append([
                     url,
-                    boundaries_for_current_tested_hifz
+                    boundaries_for_current_tested_hifz,
+                    surah_name,
+                    hifz.ayat_number
                 ])
             return render(request, 'nasrulhifz/revise.html', {'meta': meta})
         return render(request, 'nasrulhifz/revise.html')
