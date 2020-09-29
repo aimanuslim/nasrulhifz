@@ -25,6 +25,9 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.authtoken.models import Token
 
+import sqlite3
+
+
 
 from .permissions import IsOwner
 from django.contrib.auth.models import User
@@ -418,7 +421,7 @@ class ReviseList(generics.ListAPIView):
 
 @login_required
 def detail(request, surah_number, ayat_number):
-    data = return_ayat_details(request.user, surah_number, ayat_number)
+    data = return_ayat_details(request, request.user, surah_number, ayat_number)
 
     if request.method == 'GET':
         # print(data)
@@ -444,7 +447,7 @@ def enter(request):
             return JsonResponse({'surah_limit': surah_limit})
 
         if request.GET.get('surah_number') and request.GET.get('ayat_number'):
-            data = return_ayat_details(request.user, request.GET['surah_number'], request.GET['ayat_number'])
+            data = return_ayat_details(request, request.user, request.GET['surah_number'], request.GET['ayat_number'])
 
             if data is None:
                 messages.warning(request,
@@ -501,6 +504,31 @@ def enter(request):
 
         return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
+def get_url_given_surah_number_and_ayat_number(request, surah_number, ayat_number):
+    return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(get_page_number_given_ayat_number(surah_number, ayat_number))
+
+def get_page_number_given_ayat_number(surah_number, ayat_number):
+    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    data = res.fetchone()
+    page_number = data[0]
+    return page_number
+
+def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatlist):
+    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    boundary_list = list()
+    for ayat_number in ayatlist :
+        res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(page_number, surah_number, ayat_number))    
+        data = res.fetchall()
+        unique_line_number = set([gdata[1] for gdata in data])
+        print("Ayat number {} Unique line numbers {}".format(ayat_number, unique_line_number))
+        for ln in unique_line_number:
+            boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
+        )
+
+    return boundary_list
+
+
 @login_required
 def revise(request):
     if request.method == 'GET':
@@ -546,116 +574,33 @@ def revise(request):
                 hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
 
 
-            revision_cards = []
+            ## new implementation (w2 sept 2020), for each hifz to revise, return its vicinity information
+            blind_count = request.POST.get('blind-count')
+            blind_count = int(blind_count)
+
+            meta = []
             for hifz in hifz_to_revise:
+                url = get_url_given_surah_number_and_ayat_number(request, hifz.surah_number, hifz.ayat_number)
+                sm = SurahMeta.objects.filter(surah_number=hifz.surah_number)
+                sm = sm[0]
+                surah_name = sm.name_string
 
-                revision_strings = []
-                wordindexes = hifz.wordindex_set.all()
+                page_number = get_page_number_given_ayat_number(hifz.surah_number, hifz.ayat_number)
 
-                # set all words to be invisible
-                # show_word = [True if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
-                show_word = [False if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in range(len(wordindexes))]
-
-
-                number_of_words_to_be_shown_or_hidden = 7
-                # only hide random words in the ayat
-                if len(wordindexes) >= number_of_words_to_be_shown_or_hidden:
-                    indices = random.sample(range(len(wordindexes)), number_of_words_to_be_shown_or_hidden)
-                else:
-                    indices = random.sample(range(len(wordindexes)), len(wordindexes))
-                # indices = random.sample(range(len(wordindexes)) if len(wordindexes) >= number_of_words_to_be_shown_or_hidden else range(number_of_words_to_be_shown_or_hidden), number_of_words_to_be_shown_or_hidden)
-
-                # for i in indices:
-                #     if (i > 1 and i < len(wordindexes) - 2):
-                #         show_word[i] = decide_show_or_hidden(wordindexes[i].difficulty)
-
-
-
-
-                context_count = request.POST.get('context-count')
-                context_count = int(context_count)
-
-                StringMetaSet = []
-
-                proximity_tested_ayat = request.POST.get('proximity-count')
-                proximity_tested_ayat = int(proximity_tested_ayat)
-                upper_limit = findMetaSurah(hifz.surah_number)
-
-
-                current_ayat_before_number = hifz.ayat_number - context_count - proximity_tested_ayat
-                for i in range(context_count):
-                    if current_ayat_before_number < (hifz.ayat_number - proximity_tested_ayat) and current_ayat_before_number > 0:
-                        ayatBeforeQM = QuranMeta.objects.filter(surah_number=hifz.surah_number,
-                                                                ayat_number=current_ayat_before_number)
-                        ayatBeforeCard = [(string, True) for string in ayatBeforeQM[0].ayat_string.split(" ")]
-                        ayatBeforeMeta = {'surah_name': getSurahString(hifz.surah_number),
-                                          'ayat_number': current_ayat_before_number}
-                        # print("Before ayat number: " + str(current_ayat_before_number))
-                        StringMetaSet.append([ayatBeforeMeta, ayatBeforeCard])
-                    current_ayat_before_number += 1
-
-                hifz_meta = {'surah_number': hifz.surah_number, 'surah_name': getSurahString(hifz.surah_number),
-                             'ayat_number': hifz.ayat_number}
-
-                proximity_ayat_number = hifz.ayat_number - proximity_tested_ayat
-
-                for i in range(proximity_tested_ayat * 2 + 1):
-                    if proximity_ayat_number > 0 and proximity_ayat_number <= upper_limit:
-                        # print("Number i: {} prox: {} upper: {}".format(i, proximity_ayat_number, upper_limit))
-                        try:
-                            
-                            h = Hifz.objects.get(hafiz=request.user, surah_number=hifz.surah_number, ayat_number=proximity_ayat_number)
-                            # h= h[0] # TODO: fix error with out of index. maybe need to pull from quranmeta instead of from hifz if the hifz doesnt exist when looking around the ayat that is currently being tested.
-                            wordindexes = h.wordindex_set.all()
-
-                            show_word = [False if (i > 1 and i < len(wordindexes) - 2) else 'Clue' for i in
-                                        range(len(wordindexes))]
-                            print("Got here")
-                        except: 
-                            show_word = None
-                        qm = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number=proximity_ayat_number)
-                        ays = qm[0].ayat_string
-                        ays = ays.split(" ")
-                        revision_strings = qm[0].ayat_string.split(" ")
-
-                        if show_word is None: show_word = [False if (i > 1 and i < len(ays) - 2) else 'Clue'  for i, a in enumerate(ays)]
-
-                        print(show_word)
-                        # get information about the ayat
-                        temp_hifz_meta = {'surah_number': hifz.surah_number, 'surah_name': getSurahString(hifz.surah_number),
-                                     'ayat_number': proximity_ayat_number}
-                        # print("Proximity ayat number: " + str(proximity_ayat_number))
-
-                        revision_card = [(string, shown_status) for string, shown_status in
-                                         zip(revision_strings, show_word)]
-                        StringMetaSet.append([temp_hifz_meta, revision_card])
-                    proximity_ayat_number += 1
-
-
-                current_ayat_after_number = hifz.ayat_number + proximity_tested_ayat + 1
-                for i in range(context_count):
-                    if current_ayat_after_number <= (hifz.ayat_number + proximity_tested_ayat + context_count) and current_ayat_after_number <= upper_limit:
-                        ayatAfterQM = QuranMeta.objects.filter(surah_number=hifz.surah_number,
-                                                               ayat_number=current_ayat_after_number)
-                        ayatAfterCard = [(string, True) for string in ayatAfterQM[0].ayat_string.split(" ")]
-                        ayatAfterMeta = {'surah_name': getSurahString(hifz.surah_number),
-                                         'ayat_number': current_ayat_after_number}
-                        # print("After ayat number: " + str(current_ayat_after_number))
-                        StringMetaSet.append([ayatAfterMeta, ayatAfterCard])
-                    current_ayat_after_number += 1
-
-
-                # print(StringMetaSet)
-                hifz_meta['ayat_number'] = hifz.ayat_number
-                allCardsToDisplay = (hifz_meta, StringMetaSet)
-
-
-
-                revision_cards.append(allCardsToDisplay)
-
-            # print(revision_cards)
-
-            return render(request, 'nasrulhifz/revise.html', {'revision_cards': revision_cards})
+                blinded_ayats = []
+                for i in range(blind_count):
+                    blinded_ayats.append(hifz.ayat_number + i + 1)
+                    blinded_ayats.append(hifz.ayat_number - i - 1)
+                blinded_ayats.append(hifz.ayat_number)
+                
+                boundaries_for_current_tested_hifz = get_boundaries_given_list_of_ayat_for_surah(page_number, hifz.surah_number, blinded_ayats)
+                meta.append([
+                    url,
+                    boundaries_for_current_tested_hifz,
+                    surah_name,
+                    hifz.ayat_number
+                ])
+            return render(request, 'nasrulhifz/revise.html', {'meta': meta})
         return render(request, 'nasrulhifz/revise.html')
 
 
@@ -681,7 +626,38 @@ def get_string_table_type_from_difficulty(level):
     if level == 3: return "table-success"
 
 
-def return_ayat_details(user, surah_number, ayat_number):
+def get_boundary_given_list_of_glyph_data(glyph_coord_list):
+    minxs = [data[3] for data in glyph_coord_list]
+    maxxs = [data[4] for data in glyph_coord_list]
+    minys = [data[5] for data in glyph_coord_list]
+    maxys = [data[6] for data in glyph_coord_list]
+    
+    absminx = min(minxs)
+    absminy = min(minys)
+    absmaxx = max(maxxs)
+    absmaxy = max(maxys)
+    return [
+        absminx, 
+        absmaxx,
+        absminy,
+        absmaxy
+    ]
+
+
+def return_ayat_details(request, user, surah_number, ayat_number):
+    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    data = res.fetchall()
+
+    unique_line_number = set([gdata[1] for gdata in data])
+    page_number = data[0][0]
+
+    boundary_list = list()
+    for ln in unique_line_number:
+        boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
+        )
+
+
     qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
     if len(qm) == 1:
         qm = qm[0]
@@ -718,7 +694,9 @@ def return_ayat_details(user, surah_number, ayat_number):
     data = {'display_with_meta': display_with_meta,
             'surah_name': surah_name,
             'hifz_exists': hifz_exists,
-            'surah_number' : surah_number
+            'surah_number' : surah_number,
+            'image_url': 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(page_number),
+            'gcoords': boundary_list
             }
     return data
 
@@ -795,7 +773,6 @@ class ObtainAuthToken(APIView):
         serializer = AuthCustomTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        print(user)
         if not user:
             raise NotFound('User does not exist.')
         token, created = Token.objects.get_or_create(user=user)

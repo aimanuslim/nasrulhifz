@@ -4,6 +4,8 @@ from . import views
 from django.contrib.auth.decorators import login_required
 from rest_framework.authtoken.views import obtain_auth_token
 from django.conf.urls import include
+from django.conf.urls.static import static
+from django.conf import settings
 
 app_name = 'nasrulhifz'
 
@@ -23,7 +25,6 @@ urlpatterns = [
     path('api/quranmeta/<int:surah_number>/<int:ayat_number>/', views.QuranMetaDetail.as_view()),
     path('api/surahmeta/<int:surah_number>/', views.SurahMetaDetail.as_view()),
     # path('api/revise/', views.ReviseList.as_view()),
-
     path('api/revise/', views.ReviseCustomView.as_view()),
 
 
@@ -36,4 +37,4 @@ urlpatterns = [
     # path('api/password_reset/', include('django_rest_passwordreset.urls'), name='password_reset'),
 
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.DATA_URL, document_root=settings.DATA_ROOT)

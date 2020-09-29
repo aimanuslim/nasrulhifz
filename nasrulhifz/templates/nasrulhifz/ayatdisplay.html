@@ -7,26 +7,32 @@
 </div>
 
 <br>
+    
+    <canvas id="myCanvas" ></canvas>
+
+<script>
+    img = new Image()
+
+    img.src = "{{ image_url }}"
 
 
-    <div class="table-responsive">
-        
-        <table class="table table-bordered" DIR="RTL">
-            <tbody>
-            {% for wordb, metab in display_with_meta|batch:10 %}
-            <tr>
-                {% for word in wordb %}
-                <td align="center"><b class="uthm2">{{ word }}</b></td>
-                {% endfor %}
-            </tr>
-            <tr>
-                {% for meta, tstring, difficulty in metab %}
-                <td class="{{ tstring }}"><input type="hidden" name="{{ meta }}" value="{{ difficulty }}"></td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
+    
+    
+    img.onload = function(){
+        var c = document.getElementById("myCanvas");
+        c.width = img.naturalWidth
+        c.height = img.naturalHeight
+        var ctx = c.getContext("2d");
+        ctx.drawImage(img ,0,0)
+        scale = 1260 / img.width
+        {% for data  in gcoords %}
+            ctx.moveTo({{ data.0 }} / scale, {{ data.2 }} / scale)    
+            ctx.lineTo({{ data.1 }} / scale, {{ data.2 }} / scale)
+            ctx.lineTo({{ data.1 }} / scale, {{ data.3 }} / scale)
+            ctx.lineTo({{ data.0 }} / scale, {{ data.3 }} / scale)
+            ctx.lineTo({{ data.0 }} / scale, {{ data.2 }} / scale)    
+            ctx.stroke()
+        {% endfor %}
+    }
 
-            </tbody>
-
-        </table>
-    </div>
+</script>

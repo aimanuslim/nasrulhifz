@@ -10,6 +10,25 @@ class DifficultyChoice(Enum):   # A subclass of Enum
     MEDIUM = 2
     HARD = 1
 
+class Glyphs(models.Model):
+    glyph_id = models.IntegerField(unique=True, primary_key=True)
+    page_number = models.IntegerField()
+    line_number = models.IntegerField()
+    sura_number = models.IntegerField()
+    ayah_number = models.IntegerField()
+    position = models.IntegerField()
+    min_x = models.IntegerField()
+    max_x = models.IntegerField()
+    min_y = models.IntegerField()
+    max_y = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'glyphs'
+    
+    def __str__(self):
+        return "Page: {} Line: {} Sura: {} Aya: {}".format(self.page_number, self.line_number, self.sura_number, self.ayah_number)
+
 # Create your models here.
 class Hifz(models.Model):
     hafiz = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -18,6 +37,7 @@ class Hifz(models.Model):
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
     juz_number = models.SmallIntegerField(blank=True)
     average_difficulty = models.SmallIntegerField()
+    revised_count = models.IntegerField(_("Revised Count"), default=1)
 
 
     def save(self, force_insert=False, force_update=False, using=None,
