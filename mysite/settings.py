@@ -33,23 +33,6 @@ ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '10.12.29.37', 'localhost']
 
 INSTALLED_APPS = [
     'nasrulhifz.apps.NasrulhifzConfig',
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
-    'wagtail.embeds',
-    'wagtail.sites',
-    'wagtail.users',
-    'wagtail.snippets',
-    'wagtail.documents',
-    'wagtail.images',
-    'wagtail.search',
-    'wagtail.admin',
-    'wagtail.core',
-
-    'modelcluster',
-    'taggit',
-    'home',
-    'blog',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -154,6 +137,7 @@ STATICFILES_FINDERS = [
 STATICFILES_DIRS = [
     # os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "nasrulhifz/static"),
+    os.path.join(BASE_DIR, "staticfiles"),
 ]
 
 	

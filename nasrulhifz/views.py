@@ -40,7 +40,7 @@ class CreateUserView(generics.CreateAPIView):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
         except Exception as E:
-            # print(E)
+            print(E)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -332,14 +332,21 @@ class ReviseCustomView(APIView):
         all = QuranMeta.objects.all()
         queryset = QuranMeta.objects.none()
 
+        # new blind count logic
+        if blind_count % 2 == 0: # even
+            ayat_before = blind_count // 2 - 1
+        else:
+            ayat_before = blind_count // 2
+        ayat_after = blind_count // 2
+        
         list_of_streaks = []
         for i, hifz in enumerate(hifz_to_revise):
             surah_meta = SurahMeta.objects.get(surah_number=hifz.surah_number)
             central_ayat_number = hifz.ayat_number
-            start_ayat_number = central_ayat_number - blind_count - vicinity
-            end_ayat_number = central_ayat_number + blind_count + vicinity
-            start_blind_ayat_number = central_ayat_number - blind_count
-            end_blind_ayat_number = central_ayat_number + blind_count
+            start_ayat_number = central_ayat_number - ayat_before - vicinity
+            end_ayat_number = central_ayat_number + ayat_after + vicinity
+            start_blind_ayat_number = central_ayat_number - ayat_before
+            end_blind_ayat_number = central_ayat_number + ayat_after
             if start_ayat_number < 1: start_ayat_number = 1
             if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
             currset = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)  

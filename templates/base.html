@@ -1,7 +1,7 @@
 {% load static wagtailuserbar %}
 
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
     <head>
         <meta charset="utf-8" />
         <title>
@@ -15,10 +15,29 @@
             {% endblock %}
         </title>
         <meta name="description" content="" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         {# Global stylesheets #}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/testsite.css' %}">
+        <!--<link rel="stylesheet" type="text/css" href="{% static 'css/testsite.css' %}">-->
+
+        {# PURE CSS #}
+        <link rel="stylesheet" href="{% static 'css/pure-min.css' %}">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="{% static 'css/grids-responsive-old-ie-min.css' %}">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="{% static 'css/grids-responsive-min.css' %}">
+    <!--<![endif]-->
+
+
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{% static 'css/blog-old-ie.css' %}">
+        <![endif]-->
+        <!--[if gt IE 8]><!-->
+            <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <!--<![endif]-->
+
 
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
@@ -27,11 +46,34 @@
 
     <body class="{% block body_class %}{% endblock %}">
         {% wagtailuserbar %}
+        <div id="layout" class="pure-g">
+            <div class="sidebar pure-u-1 pure-u-md-1-4">
+                <div class="header">
+                    <h1 class="brand-title">{{ request.site.site_name }}</h1>
+                    <h2 class="brand-tagline">Creating a blog layout using Pure</h2>
 
-        {% block content %}{% endblock %}
+                    <nav class="nav">
+                        <ul class="nav-list">
+                            <li class="nav-item">
+                                <a class="pure-button" href="http://purecss.io">Pure</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="pure-button" href="http://yuilibrary.com">YUI Library</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="content pure-u-1 pure-u-md-3-4">
+                {% block content %}{% endblock %}
+            </div>
+
+
+        </div>
 
         {# Global javascript #}
-        <script type="text/javascript" src="{% static 'js/testsite.js' %}"></script>
+        <!--<script type="text/javascript" src="{% static 'js/testsite.js' %}"></script>-->
 
         {% block extra_js %}
             {# Override this in templates to add extra javascript #}
