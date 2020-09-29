@@ -1,0 +1,14 @@
+- (surah list) click through until canvas - check
+- (surah list)  click through, tick refresh - update
+- (enter data) enter data single ayat submit - check data
+- (enter data) enter data single ayat, invalid, submit - make sure warning
+- (enter data) enter data single ayat, ubah difficulty, submit
+- (enter data) enter data display ayat - check canvas
+- (enter data) enter data multiple ayat - check data
+- (enter data) enter data multiple ayat invalid - make sure warning
+- (revise) juz mode try - data ada
+- (revise) juz mode try - data takde
+- (revise) surah mode try - data ada
+- (revise) surah mode try - data takde
+- (revise) free mode try - data ada
+- (revise) free mode try - data takde
