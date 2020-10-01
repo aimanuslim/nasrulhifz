@@ -1,5 +1,5 @@
-- (surah list) click through until canvas - check
-- (surah list)  click through, tick refresh - update
+- (surah list) click through until canvas -  done
+- (surah list)  click through, tick refresh - update done
 - (enter data) enter data single ayat submit - check data
 - (enter data) enter data single ayat, invalid, submit - make sure warning
 - (enter data) enter data single ayat, ubah difficulty, submit

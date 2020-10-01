@@ -55,8 +55,6 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'wagtail.core.middleware.SiteMiddleware',
-    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -194,9 +192,9 @@ REST_FRAMEWORK = {
 
 
 # WAGTAIL STUFFS
-WAGTAIL_SITE_NAME = 'CODACKS'
-WAGTAIL_APPEND_SLASH = True
-EMAIL_SUBJECT_PREFIX = '[Wagtail] '
+# WAGTAIL_SITE_NAME = 'CODACKS'
+# WAGTAIL_APPEND_SLASH = True
+# EMAIL_SUBJECT_PREFIX = '[Wagtail] '
 
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2')
 
