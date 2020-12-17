@@ -15,8 +15,30 @@
 
     img.src = "{{ image_url }}"
 
+   wordShown = false
+    $("#show-ayat-button").click(function(){
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height)
+        c.width = img.naturalWidth
+        c.height = img.naturalHeight
+        ctx.drawImage(img ,0,0)
 
-    
+        if(wordShown){
+            scale = 1260 / img.width
+            {% for data  in gcoords %}
+                ctx.moveTo({{ data.0 }} / scale, {{ data.2 }} / scale)    
+                ctx.lineTo({{ data.1 }} / scale, {{ data.2 }} / scale)
+                ctx.lineTo({{ data.1 }} / scale, {{ data.3 }} / scale)
+                ctx.lineTo({{ data.0 }} / scale, {{ data.3 }} / scale)
+                ctx.lineTo({{ data.0 }} / scale, {{ data.2 }} / scale)    
+                ctx.stroke()
+            {% endfor %}
+            wordShown = false
+        } else {
+            wordShown = true
+        }
+    })
     
     img.onload = function(){
         var c = document.getElementById("myCanvas");

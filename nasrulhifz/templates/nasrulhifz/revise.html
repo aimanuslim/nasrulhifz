@@ -138,6 +138,38 @@
 
 <script>
 
+  
+
+    wordShown = false
+    $("#show-ayat-button").click(function(){
+          {% for url, boundary_list, surah_name, ayat_number  in meta %}
+            img{{forloop.counter}} = new Image()
+            img{{forloop.counter}}.src = "{{ url }}"
+            img{{forloop.counter}}.onload = function(){
+            var c{{forloop.counter}} = document.getElementById("myCanvas{{forloop.counter}}");
+            c{{forloop.counter}}.width = img{{forloop.counter}}.naturalWidth
+            c{{forloop.counter}}.height = img{{forloop.counter}}.naturalHeight
+            var ctx{{forloop.counter}} = c{{forloop.counter}}.getContext("2d");
+            ctx{{forloop.counter}}.drawImage(img{{forloop.counter}} ,0,0)
+            scale{{forloop.counter}} = 1260 / img{{forloop.counter}}.width
+
+        if(wordShown){
+             {% for data in boundary_list %}
+            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.87
+            ctx{{forloop.parentloop.counter}}.fillStyle = "#4ff540"
+
+            ctx{{forloop.parentloop.counter}}.fillRect({{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} )
+
+        {% endfor %}
+            wordShown = false
+        } else {
+            wordShown = true
+        }
+
+                        }
+        {% endfor %}
+    })
+
     {% for url, boundary_list, surah_name, ayat_number  in meta %}
             img{{forloop.counter}} = new Image()
             img{{forloop.counter}}.src = "{{ url }}"
@@ -157,6 +189,8 @@
         {% endfor %}
             }
     {% endfor %}
+
+ 
 </script>
 
 
