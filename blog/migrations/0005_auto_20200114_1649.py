@@ -8,25 +8,42 @@ import modelcluster.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wagtailimages', '0001_squashed_0021'),
-        ('blog', '0004_blogtagindexpage'),
+        ("wagtailimages", "0001_squashed_0021"),
+        ("blog", "0004_blogtagindexpage"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BlogCategory',
+            name="BlogCategory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('icon', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='wagtailimages.Image')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "icon",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to="wagtailimages.Image",
+                    ),
+                ),
             ],
-            options={
-                'verbose_name_plural': 'blog categories',
-            },
+            options={"verbose_name_plural": "blog categories",},
         ),
         migrations.AddField(
-            model_name='blogpage',
-            name='categories',
-            field=modelcluster.fields.ParentalManyToManyField(blank=True, to='blog.BlogCategory'),
+            model_name="blogpage",
+            name="categories",
+            field=modelcluster.fields.ParentalManyToManyField(
+                blank=True, to="blog.BlogCategory"
+            ),
         ),
     ]

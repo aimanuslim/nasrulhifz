@@ -16,7 +16,6 @@ from decouple import config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -26,8 +25,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '10.12.29.37', 'localhost']
-
-
 
 # Application definition
 
@@ -41,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-     'django_rest_passwordreset',
+    'django_rest_passwordreset',
 ]
 
 MIDDLEWARE = [
@@ -63,7 +60,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # 'DIRS': [],
-        'DIRS': ['./templates',],
+        'DIRS': ['./templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,7 +69,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'libraries':{
+            'libraries': {
                 'ayat_extras': 'nasrulhifz.templatetags.ayat_extras',
 
             }
@@ -85,7 +82,6 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 
 
 # Password validation
@@ -106,7 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -120,7 +115,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -131,23 +125,20 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-
 STATICFILES_DIRS = [
     # os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "nasrulhifz/static"),
     os.path.join(BASE_DIR, "staticfiles"),
 ]
 
-	
-MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATA_ROOT  = os.path.join(BASE_DIR, 'data')
+DATA_ROOT = os.path.join(BASE_DIR, 'data')
 DATA_URL = '/data/'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/nasrulhifz/'
-
 
 # For seeing email sent at console.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -166,35 +157,29 @@ ADMINS = [
 ]
 MANAGERS = ADMINS
 
-
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # try to load local_settings.py if it exists
 try:
-  from local_settings import *
+    from local_settings import *
 #   from sqlite3_settings import *
 except Exception as e:
-  import dj_database_url
-  SECRET_KEY = config('SECRET_KEY')
-  DEBUG = config('DEBUG', default=False, cast=bool)
-  DATABASES = {
-      'default': dj_database_url.config(
-          default=config('DATABASE_URL')
-      )
-  }
+    import dj_database_url
+
+    SECRET_KEY = config('SECRET_KEY')
+    DEBUG = config('DEBUG', default=False, cast=bool)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=config('DATABASE_URL')
+        )
+    }
 
 REST_FRAMEWORK = {
-  'DEFAULT_AUTHENTICATION_CLASSES': (
-      'rest_framework.authentication.TokenAuthentication',
-  )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
 }
-
-
-# WAGTAIL STUFFS
-# WAGTAIL_SITE_NAME = 'CODACKS'
-# WAGTAIL_APPEND_SLASH = True
-# EMAIL_SUBJECT_PREFIX = '[Wagtail] '
 
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2')
 
@@ -232,12 +217,12 @@ LOGGING = {
 # WAGTAILSEARCH_RESULTS_TEMPLATE_AJAX = 'myapp/includes/search_listing.html'
 
 # Replace the search backend
-#WAGTAILSEARCH_BACKENDS = {
+# WAGTAILSEARCH_BACKENDS = {
 #  'default': {
 #    'BACKEND': 'wagtail.search.backends.elasticsearch2',
 #    'INDEX': 'myapp'
 #  }
-#}
+# }
 
 # Wagtail email notifications from address
 # WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = 'wagtail@myhost.io'
