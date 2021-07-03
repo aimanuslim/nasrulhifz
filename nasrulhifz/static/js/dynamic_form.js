@@ -51,27 +51,7 @@ $(document).ready(function(){
         }
     })
 
-    $("#show-ayat-button").click(function(){
-        if(wordShown){
-            $(".hidden-word").hide();
-            $(".blank-lines").show();
-            $(this).text('Show Words')
-            if($("#show-clue-button").text() == 'Show Clue'){
-                $("#show-clue-button").click()
-            }
-            wordShown = false
-        } else {
-            $(".hidden-word").show();
-            $(".blank-lines").hide();
-            $(this).text('Hide Words')
-            if($("#show-clue-button").text() == 'Hide Clue'){
-                $("#show-clue-button").click()
-            }
-            $("#show-clue-button").click()
-            wordShown = true
-        }
 
-    })
 
     $("#show-clue-button").click(function(){
         if(clueShown){

@@ -212,23 +212,6 @@ LOGGING = {
     }
 }
 
-# Override the search results template for wagtailsearch
-# WAGTAILSEARCH_RESULTS_TEMPLATE = 'myapp/search_results.html'
-# WAGTAILSEARCH_RESULTS_TEMPLATE_AJAX = 'myapp/includes/search_listing.html'
-
-# Replace the search backend
-# WAGTAILSEARCH_BACKENDS = {
-#  'default': {
-#    'BACKEND': 'wagtail.search.backends.elasticsearch2',
-#    'INDEX': 'myapp'
-#  }
-# }
-
-# Wagtail email notifications from address
-# WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = 'wagtail@myhost.io'
-
-# Wagtail email notification format
-# WAGTAILADMIN_NOTIFICATION_USE_HTML = True
 
 # Reverse the default case-sensitive handling of tags
 TAGGIT_CASE_INSENSITIVE = True

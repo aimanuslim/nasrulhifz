@@ -7,16 +7,18 @@ from selenium.webdriver.support.ui import WebDriverWait as wait
 
 # Create your tests here.
 class TestBase(LiveServerTestCase):
+    def open(self, url):
+        self.wd.get("%s%s" % (self.live_server_url, url))
     def setUp(self):
-        self.selenium = webdriver.Chrome()
+        self.wd = webdriver.Chrome()
         super(TestBase, self).setUp()
 
     def tearDown(self):
-        self.selenium.quit()
+        self.wd.quit()
         super(TestBase, self).tearDown()
     
     def clickFirstSurah(self):
-        list_of_surah = self.selenium.find_elements_by_class_name('list-group-item-action')
+        list_of_surah = self.wd.find_elements_by_class_name('list-group-item-action')
 
         first_surah = list_of_surah[0]
         first_surah.click()
@@ -24,10 +26,10 @@ class TestBase(LiveServerTestCase):
 class LoginTest(TestBase):
     def login(self, username, password):
         #Opening the link we want to test
-        self.selenium.get('http://127.0.0.1:8000/nasrulhifz/')
-        username_field = self.selenium.find_element_by_id('id_username')
-        password_field = self.selenium.find_element_by_id('id_password')
-        submit_button = self.selenium.find_element_by_class_name('btn')
+        self.wd.get('http://127.0.0.1:8000/nasrulhifz/')
+        username_field = self.wd.find_element_by_id('id_username')
+        password_field = self.wd.find_element_by_id('id_password')
+        submit_button = self.wd.find_element_by_class_name('btn')
 
         username_field.send_keys(username)
         password_field.send_keys(password)
@@ -42,11 +44,11 @@ class LoginTest(TestBase):
 
     def testLogin(self):
         self.loginValid()
-        self.assertTrue("Surah List" in self.selenium.page_source)
+        self.assertTrue("Surah List" in self.wd.page_source)
     
     def testLoginInvalid(self):
         self.loginInvalid()
-        self.assertTrue("Your username and password didn't match" in self.selenium.page_source)
+        self.assertTrue("Your username and password didn't match" in self.wd.page_source)
 
 
 class AyatDisplayTest(LoginTest):
@@ -54,23 +56,22 @@ class AyatDisplayTest(LoginTest):
         self.loginValid()
         self.clickFirstSurah()
 
-        list_of_ayat_rows = self.selenium.find_elements_by_tag_name('td')
+        list_of_ayat_rows = self.wd.find_elements_by_tag_name('td')
         ayat_row = list_of_ayat_rows[0]
         ayat_row.click()
 
-        wait(self.selenium, 10)
+        wait(self.wd, 10)
 
-        canvas = self.selenium.find_element_by_id('myCanvas')
-        print(canvas)
+        canvas = self.wd.find_element_by_id('myCanvas')
 
 class AyatListTest(LoginTest):
     def getFirstCheckboxAndTick(self):
-        checkboxes = self.selenium.find_elements_by_name('ayat_number')
+        checkboxes = self.wd.find_elements_by_name('ayat_number')
         first_checkbox = checkboxes[0]
         first_checkbox.click()
 
     def clickUpdateButton(self):
-        updateButton = self.selenium.find_element_by_class_name('btn-success')
+        updateButton = self.wd.find_element_by_class_name('btn-success')
         updateButton.click()
 
 
@@ -79,7 +80,7 @@ class AyatListTest(LoginTest):
         self.clickFirstSurah()
         self.getFirstCheckboxAndTick()
         self.clickUpdateButton()
-        trs = self.selenium.find_elements_by_tag_name("tr")
+        trs = self.wd.find_elements_by_tag_name("tr")
         first_tr = trs[1]
         tds = first_tr.find_elements_by_css_selector("*") 
         has_0_days = False

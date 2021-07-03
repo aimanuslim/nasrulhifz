@@ -1,3 +1,4 @@
+selenium
 Django==2.2.4
 django-rest-passwordreset==1.0.0
 djangorestframework==3.10.2
