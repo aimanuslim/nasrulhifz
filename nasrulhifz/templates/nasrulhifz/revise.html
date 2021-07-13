@@ -63,37 +63,18 @@
 
 
 {% if meta and meta|length > 0 %}
-<div id="revise_carousel" class="carousel slide" data-ride="carousel" data-interval="0">
-
-
-    <div class="row justify-content-center align-items-center">
-        <button class="mx-5 my-2 btn btn-success custom-carousel-button" href="#revise_carousel" data-slide="prev" type="button">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <!-- Left and right controls -->
-        <button class="mx-5 my-2 btn btn-success custom-carousel-button" href="#revise_carousel" data-slide="next" type="button">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-    </div>
 
     <!-- The slideshow -->
 
-    <div class="carousel-inner">
-
-        {% for url, boundary_list, surah_name, ayat_number in meta %}
-
-
-            {% if forloop.first %}
-                <div class="carousel-item active ">
-            {% else %}
-                <div class="carousel-item">
-            {% endif %}
-
-            {% include "nasrulhifz/revisiondisplay.html" %}
-
+    <div id="image-slider" class="splide">
+        <div class="splide__track">
+            <div class="splide__list">
+                {% for url, boundary_list, surah_name, ayat_number in meta %}
+                    <div class="splide__slide">
+                        {% include "nasrulhifz/revisiondisplay.html" %}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-
         </div>
     </div>
 
@@ -110,7 +91,7 @@
 
                 {% csrf_token %}
                 <label><input id="refreshed-checkbox" type="checkbox" value="">  Refreshed!</label>
-    </form>
+                </form>
 
 		</div>
 	</div>
@@ -119,7 +100,6 @@
 
 
 
-</div>
 
 
 
@@ -136,57 +116,41 @@
 
 
 <script>
+$(document).ready(function ()
+{
+	$('img[usemap]').mapster({
+        selected: true,
+        mapKey: 'part',
+    });
+<!--        $('img[usemap]').mapster('resize','500','500', 10);-->
 
-  
+});
+    console.log({{ meta|length }});
 
-    wordShown = false
-    $("#show-ayat-button").click(function(){
-          {% for url, boundary_list, surah_name, ayat_number  in meta %}
-            img{{forloop.counter}} = new Image()
-            img{{forloop.counter}}.src = "{{ url }}"
-            img{{forloop.counter}}.onload = function(){
-            var c{{forloop.counter}} = document.getElementById("myCanvas{{forloop.counter}}");
-            c{{forloop.counter}}.width = img{{forloop.counter}}.naturalWidth
-            c{{forloop.counter}}.height = img{{forloop.counter}}.naturalHeight
-            var ctx{{forloop.counter}} = c{{forloop.counter}}.getContext("2d");
-            ctx{{forloop.counter}}.drawImage(img{{forloop.counter}} ,0,0)
-            scale{{forloop.counter}} = 1260 / img{{forloop.counter}}.width
 
-        if(wordShown){
-             {% for data in boundary_list %}
-            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.87
-            ctx{{forloop.parentloop.counter}}.fillStyle = "#4ff540"
 
-            ctx{{forloop.parentloop.counter}}.fillRect({{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} )
+<!--    $('.page').mapster('resize','100%','auto', 0);-->
+<!--    $('area').mapster('select');-->
 
-        {% endfor %}
-            wordShown = false
-        } else {
-            wordShown = true
-        }
 
-    })
+    function loadImage(n) {
+        var img = document.getElementById("testImage" + n.toString());
+        var height = img.height;
+        console.log(height)
+    }
 
-    {% for url, boundary_list, surah_name, ayat_number  in meta %}
-            img{{forloop.counter}} = new Image()
-            img{{forloop.counter}}.src = "{{ url }}"
-            img{{forloop.counter}}.onload = function(){
-            var c{{forloop.counter}} = document.getElementById("myCanvas{{forloop.counter}}");
-            c{{forloop.counter}}.width = img{{forloop.counter}}.naturalWidth
-            c{{forloop.counter}}.height = img{{forloop.counter}}.naturalHeight
-            var ctx{{forloop.counter}} = c{{forloop.counter}}.getContext("2d");
-            ctx{{forloop.counter}}.drawImage(img{{forloop.counter}} ,0,0)
-            scale{{forloop.counter}} = 1260 / img{{forloop.counter}}.width
-        {% for data in boundary_list %}
-            ctx{{forloop.parentloop.counter}}.globalAlpha = 0.87
-            ctx{{forloop.parentloop.counter}}.fillStyle = "#4ff540"
+    document.addEventListener( 'DOMContentLoaded', function () {
+		/*new Splide( '.splide', {
+             type     : 'loop',
+            autoWidth: true,
+            focus    : 'center',
+            width: '80%',
+         }).mount();*/
 
-            ctx{{forloop.parentloop.counter}}.fillRect({{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} )
+         new Splide( '#image-slider', {
+         } ).mount();
 
-        {% endfor %}
-            }
-    {% endfor %}
-
+	} );
 </script>
 
 

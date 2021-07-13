@@ -1,12 +1,28 @@
+<div>
+
+
 <div class="text-center my-4">
     <button type="button" class="label-button btn btn-light"><p class="uthm2">{{ surah_name }}</p></button>
     {% comment %} <p id="surah-number" hidden >{{ hifzinfo.surah_number }}</p> {% endcomment %}
     <button id="ayat-number" type="button" class="label-button btn btn-light">{{ ayat_number }}</button>
 </div>
 
+    <div>
+        <!--<img   src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  class="map maphilighted quranimage" id="testImage{{forloop.counter}}">-->
+        <!--<img   src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  id="testImage{{forloop.counter}}" style="width:100%; height:auto">-->
+        <img   class="page" src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  id="testImage{{forloop.counter}}"  style="width:100%; height:auto" >
+    </div>
 
+<map name="pageblocks{{forloop.counter}}">
+    {% for url, boundary_list, surah_name, ayat_number  in meta %}
+        {% for data in boundary_list %}
+            <area shape="rect" color="black" part="{{surah_name}}{{ayat_number}}{{forloop.counter}}" href="#" coords="{{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} ">
+<!--                <area shape="rect" color="black"  href="#"  coords="5, 5, 100, 100">-->
+        {% endfor %}
+    {% endfor %}
+</map>
 
-<canvas id="myCanvas{{forloop.counter}}" width=500 height=500 ></canvas>
+</div>
 
 
 
