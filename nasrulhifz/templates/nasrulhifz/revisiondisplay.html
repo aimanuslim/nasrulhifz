@@ -8,18 +8,13 @@
 </div>
 
     <div>
-        <!--<img   src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  class="map maphilighted quranimage" id="testImage{{forloop.counter}}">-->
-        <!--<img   src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  id="testImage{{forloop.counter}}" style="width:100%; height:auto">-->
         <img   class="page" src="{{ url }}" usemap="#pageblocks{{forloop.counter}}"  id="testImage{{forloop.counter}}"  style="width:100%; height:auto" >
     </div>
 
 <map name="pageblocks{{forloop.counter}}">
-    {% for url, boundary_list, surah_name, ayat_number  in meta %}
         {% for data in boundary_list %}
-            <area shape="rect" color="black" part="{{surah_name}}{{ayat_number}}{{forloop.counter}}" href="#" coords="{{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} ">
-<!--                <area shape="rect" color="black"  href="#"  coords="5, 5, 100, 100">-->
+            <area shape="rect" color="black" part="{{forloop.parentloop.counter}}_{{forloop.counter}}" href="#" coords="{{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} ">
         {% endfor %}
-    {% endfor %}
 </map>
 
 </div>

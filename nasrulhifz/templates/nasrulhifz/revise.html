@@ -122,31 +122,12 @@ $(document).ready(function ()
         selected: true,
         mapKey: 'part',
     });
-<!--        $('img[usemap]').mapster('resize','500','500', 10);-->
 
 });
     console.log({{ meta|length }});
 
 
-
-<!--    $('.page').mapster('resize','100%','auto', 0);-->
-<!--    $('area').mapster('select');-->
-
-
-    function loadImage(n) {
-        var img = document.getElementById("testImage" + n.toString());
-        var height = img.height;
-        console.log(height)
-    }
-
     document.addEventListener( 'DOMContentLoaded', function () {
-		/*new Splide( '.splide', {
-             type     : 'loop',
-            autoWidth: true,
-            focus    : 'center',
-            width: '80%',
-         }).mount();*/
-
          new Splide( '#image-slider', {
          } ).mount();
 
