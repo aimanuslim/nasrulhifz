@@ -69,7 +69,7 @@
     <div id="image-slider" class="splide">
         <div class="splide__track">
             <div class="splide__list">
-                {% for url, boundary_list, surah_name, ayat_number in meta %}
+                {% for url, boundary_list, surah_name, surah_number, ayat_number in meta %}
                     <div class="splide__slide">
                         {% include "nasrulhifz/revisiondisplay.html" %}
                     </div>
@@ -78,19 +78,16 @@
         </div>
     </div>
 
-
-
-
-    <div class="row justify-content-center align-items-center my-2">
-        <button class="btn mx-2" id="show-ayat-button">Show Words</button>
-    </div>
-
 	<div class="row justify-content-center align-items-center">
 		<div class="my-4 checkbox">
                 <form action="{% url 'nasrulhifz:revise' %}" method="POST" id="refreshed-checkbox-form">
 
                 {% csrf_token %}
                 <label><input id="refreshed-checkbox" type="checkbox" value="">  Refreshed!</label>
+                    <button class="btn btn-success">
+                      <span class="spinner-border spinner-border-sm"></span>
+                      Refreshed!
+                    </button>
                 </form>
 
 		</div>
@@ -113,26 +110,6 @@
 <h1>No hifz matches those criteria.</h1>
 
 {% endif %}
-
-
-<script>
-$(document).ready(function ()
-{
-	$('img[usemap]').mapster({
-        selected: true,
-        mapKey: 'part',
-    });
-
-});
-    console.log({{ meta|length }});
-
-
-    document.addEventListener( 'DOMContentLoaded', function () {
-         new Splide( '#image-slider', {
-         } ).mount();
-
-	} );
-</script>
 
 
 {% endblock %}

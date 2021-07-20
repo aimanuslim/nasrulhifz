@@ -13,7 +13,7 @@
 
 <map name="pageblocks{{forloop.counter}}">
         {% for data in boundary_list %}
-            <area shape="rect" color="black" part="{{forloop.parentloop.counter}}_{{forloop.counter}}" href="#" coords="{{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} ">
+            <area shape="rect" color="black" part="{{surah_number}}_{{ayat_number}}_{{forloop.counter}}" href="#" coords="{{ data.0 }}, {{ data.2 }}, {{ data.1 }} - {{ data.0 }}, {{ data.3 }} - {{ data.2 }} ">
         {% endfor %}
 </map>
 

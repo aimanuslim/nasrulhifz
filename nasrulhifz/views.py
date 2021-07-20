@@ -527,11 +527,20 @@ def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatl
     for ayat_number in ayatlist :
         res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(page_number, surah_number, ayat_number))    
         data = res.fetchall()
-        unique_line_number = set([gdata[1] for gdata in data])
-        print("Ayat number {} Unique line numbers {}".format(ayat_number, unique_line_number))
-        for ln in unique_line_number:
-            boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
-        )
+        # unique_line_number = set([gdata[1] for gdata in data])
+        # print("Ayat number {} Unique line numbers {}".format(ayat_number, unique_line_number))
+        # for ln in unique_line_number:
+        #     boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
+        # )
+
+
+        for glyph_data in data:
+            boundary_list.append([
+                glyph_data[3],
+                glyph_data[4],
+                glyph_data[5],
+                glyph_data[6],
+            ])
 
     return boundary_list
 
@@ -605,6 +614,7 @@ def revise(request):
                     url,
                     boundaries_for_current_tested_hifz,
                     surah_name,
+                    hifz.surah_number,
                     hifz.ayat_number
                 ])
             return render(request, 'nasrulhifz/revise.html', {'meta': meta})
@@ -707,6 +717,12 @@ def return_ayat_details(request, user, surah_number, ayat_number):
             }
     return data
 
+def get_length_of_word_indexes(surah_number, ayat_number):
+    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    res = conn.cursor().execute("SELECT position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    data = res.fetchall()
+    return len(data)
+
 
 def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty=3):
     hifz = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
@@ -721,9 +737,8 @@ def save_word_index_difficulty(request, surah_number, ayat_number, default_diffi
         hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number, juz_number=juz_number)
         hifz.average_difficulty = default_difficulty
         hifz.save()
-        qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
-        qm = qm[0]
-        len_wset = len(qm.ayat_string.split(" "))
+
+        len_wset = get_length_of_word_indexes(surah_number, ayat_number)
         wset = None
 
     for i in range(0, len_wset):
