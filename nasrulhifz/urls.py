@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/surahmeta/<int:surah_number>/', views.SurahMetaDetail.as_view()),
     # path('api/revise/', views.ReviseList.as_view()),
     path('api/revise/', views.ReviseCustomView.as_view()),
+    path('api/revise_no_user/', views.ReviseNoUser.as_view(), name='revise_no_user'),
 
 
     # Authentication for API

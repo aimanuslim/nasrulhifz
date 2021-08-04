@@ -25,6 +25,8 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.authtoken.models import Token
 
+from os.path import join
+
 import sqlite3
 
 
@@ -515,14 +517,39 @@ def get_url_given_surah_number_and_ayat_number(request, surah_number, ayat_numbe
     return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(get_page_number_given_ayat_number(surah_number, ayat_number))
 
 def get_page_number_given_ayat_number(surah_number, ayat_number):
-    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
     res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
     data = res.fetchone()
     page_number = data[0]
     return page_number
 
+def get_page_and_boundaries_given_ayat_and_blind_vicinity(surah_number, ayat_number, vicinity):
+    # returns a list of pages with its boundaries, given ayat and its ayat around it
+    conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
+    data = dict()
+
+    end_range_ayat_number = ayat_number + vicinity
+
+    # check if the last ayat is beyond the last ayat of surah
+    qm = SurahMeta.objects.get(surah_number=surah_number)
+    if end_range_ayat_number > qm.surah_ayat_max: end_range_ayat_number = qm.surah_ayat_max
+
+    result = conn.cursor().execute("SELECT page_number, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number BETWEEN {} AND {};".format(surah_number, ayat_number, end_range_ayat_number))
+    result = result.fetchall()
+
+    unique_page_numbers = list(set([row[0] for row in result]))
+    for pg_number in unique_page_numbers:
+        boundaries_for_page = [[row[1], row[2], row[3], row[4]] for row in result if row[0] == pg_number]
+        data["page_number"] = pg_number
+        data["boundaries"] = boundaries_for_page
+    print(data)
+    return data
+
+
+
+
 def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatlist):
-    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
     boundary_list = list()
     for ayat_number in ayatlist :
         res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(page_number, surah_number, ayat_number))    
@@ -543,6 +570,30 @@ def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatl
             ])
 
     return boundary_list
+
+class ReviseNoUser(APIView):
+    def get(self, request):
+        mode = self.request.query_params.get('mode', None)
+        min_range = self.request.query_params.get('min_range', None)
+        max_range = self.request.query_params.get('max_range', None)
+        test_count = self.request.query_params.get('test_count', None)
+        verse_to_be_hidden = self.request.query_params.get('verse_to_be_hidden', None)
+
+        min_range = int(min_range)
+        max_range = int(max_range)
+        verse_to_be_hidden = int(verse_to_be_hidden)
+        test_count = int(test_count)
+
+        if mode == 'juzMode':
+            quran_metas_within_range = list(QuranMeta.objects.filter(juz_number__gte=min_range).filter(juz_number__lte=max_range))
+
+        if mode == 'surahMode':
+            quran_metas_within_range = list(QuranMeta.objects.filter(surah_number__gte=min_range).filter(surah_number__lte=max_range))
+
+        selected_qm = random.sample(quran_metas_within_range, test_count)
+        question_data = [get_page_and_boundaries_given_ayat_and_blind_vicinity(qm.surah_number, qm.ayat_number, verse_to_be_hidden) for qm in selected_qm]
+
+        return Response(question_data)
 
 
 @login_required
@@ -662,7 +713,7 @@ def get_boundary_given_list_of_glyph_data(glyph_coord_list):
 
 
 def return_ayat_details(request, user, surah_number, ayat_number):
-    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
     res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
     data = res.fetchall()
 
@@ -718,7 +769,7 @@ def return_ayat_details(request, user, surah_number, ayat_number):
     return data
 
 def get_length_of_word_indexes(surah_number, ayat_number):
-    conn = sqlite3.connect("data\\ayahinfo_1260.db")
+    conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
     res = conn.cursor().execute("SELECT position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
     data = res.fetchall()
     return len(data)
