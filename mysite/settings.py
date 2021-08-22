@@ -24,7 +24,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '10.12.29.37', 'localhost']
+# TODO: define allowed hosts based on environement variables.
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '192.168.1.102', 'localhost', '10.0.2.2']
 
 # Application definition
 

@@ -274,13 +274,11 @@ class ReviseCustomView(APIView):
         juz_number = self.request.query_params.get('juz_number', None)
         juz_number_upperbound = self.request.query_params.get('juz_number_upperbound', None)
         juz_number_lowerbound = self.request.query_params.get('juz_number_lowerbound', None)
-        vicinity = self.request.query_params.get('vicinity', 1)
-        streak = self.request.query_params.get('streak_length', 1)
+        num_questions = self.request.query_params.get('number_of_questions', 1)
         blind_count = self.request.query_params.get('blind_count', 1)
 
         try:
-            vicinity = int(vicinity)
-            streak = int(streak)
+            num_questions = int(num_questions)
             blind_count = int(blind_count)
 
             if surah_number is not None: surah_number = int(surah_number)
@@ -320,8 +318,8 @@ class ReviseCustomView(APIView):
 
 
         all_hifz_to_revise_indices = range(len(hifz_to_revise))
-        if len(hifz_to_revise)  >= streak:
-            k_value = streak
+        if len(hifz_to_revise)  >= num_questions:
+            k_value = num_questions
         else:
             k_value = len(hifz_to_revise)
 
@@ -344,16 +342,10 @@ class ReviseCustomView(APIView):
         list_of_streaks = []
         for i, hifz in enumerate(hifz_to_revise):
             surah_meta = SurahMeta.objects.get(surah_number=hifz.surah_number)
-            central_ayat_number = hifz.ayat_number
-            start_ayat_number = central_ayat_number - ayat_before - vicinity
-            end_ayat_number = central_ayat_number + ayat_after + vicinity
-            start_blind_ayat_number = central_ayat_number - ayat_before
-            end_blind_ayat_number = central_ayat_number + ayat_after
-            if start_ayat_number < 1: start_ayat_number = 1
-            if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
-            currset = QuranMeta.objects.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)  
-            currsr = QuranMetaSerializer(currset, many=True)   
-            currjson = {"test_index": [i for i in range(start_blind_ayat_number, end_blind_ayat_number + 1)], "data": currsr.data}
+            final_blinded_ayat = hifz.ayat_number + blind_count
+            if final_blinded_ayat > surah_meta.surah_ayat_max:
+                final_blinded_ayat = surah_meta.surah_ayat_max
+            currjson = {"test_index": [i for i in range(hifz.ayat_number, final_blinded_ayat)], "surah_number": surah_meta.surah_number}
             list_of_streaks.append(currjson)
         
         return Response(list_of_streaks)
