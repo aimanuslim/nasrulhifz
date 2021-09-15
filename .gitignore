@@ -3,3 +3,9 @@
 *.png
 /trash2/
 /trash/
+/bc.staticfiles/
+/bc.static/
+/sqlite3_settings.py
+/sqlite3.db
+/geckodriver.log
+/.vscode/
