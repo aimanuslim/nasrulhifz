@@ -11,3 +11,5 @@
 /sqlite3.db
 /geckodriver.log
 /.vscode/
+/local_settings.py
+/local_settings.template
