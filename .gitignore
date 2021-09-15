@@ -13,3 +13,4 @@
 /.vscode/
 /local_settings.py
 /local_settings.template
+/postgrest_init.sql
