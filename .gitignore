@@ -5,6 +5,8 @@
 /trash/
 /bc.staticfiles/
 /bc.static/
+/staticfiles/
+/static/
 /sqlite3_settings.py
 /sqlite3.db
 /geckodriver.log
