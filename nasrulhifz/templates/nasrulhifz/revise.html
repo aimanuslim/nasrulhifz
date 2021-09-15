@@ -13,11 +13,12 @@
     {% csrf_token %}
     <div class="my-4 row justify-content-center">
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-primary active">
-                <input type="radio" name="mode-select" id="juz_mode" value="juz_mode" autocomplete="off" checked> Juz Mode
-            </label>
+            <!-- TODO: fix juz mode for revise page -->
+<!--            <label class="btn btn-primary active">-->
+<!--                <input type="radio" name="mode-select" id="juz_mode" value="juz_mode" autocomplete="off" checked> Juz Mode-->
+<!--            </label>-->
             <label class="btn btn-primary">
-                <input type="radio" name="mode-select" id="surah_mode" value="surah_mode" autocomplete="off"> Surah Mode
+                <input type="radio" name="mode-select" id="surah_mode" value="surah_mode" autocomplete="off" checked> Surah Mode
             </label>
             <label class="btn btn-primary">
                 <input type="radio" name="mode-select" id="free_mode" value="free_mode" autocomplete="off"> Free Mode
@@ -36,7 +37,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12 align-self-center">
             <input type="number" class="mb-4 form-control" id="streak-length" name="streak-length" placeholder="Streak Length" required="true">
-            <input type="number" class="mb-4 form-control" id="unit-number" name="unit-number" placeholder="Juz Number" min="1" max="30" aria-describedby="UnitNumberWarning">
+            <input type="number" class="mb-4 form-control" id="unit-number" name="unit-number" placeholder="Surah Number" min="1" max="114" aria-describedby="UnitNumberWarning">
 
 
         </div>
