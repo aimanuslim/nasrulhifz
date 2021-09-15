@@ -1,3 +1,10 @@
+# Must include this for running standalone script
+# Also will need to execute
+# export DJANGO_SETTINGS_MODULE=mysite.settings
+import django
+SECRET_KEY='test'
+django.setup()
+
 from nasrulhifz.models import QuranMeta, SurahMeta, User, Hifz, WordIndex
 
 
