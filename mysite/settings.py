@@ -22,10 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # # SECURITY WARNING: keep the secret key used in production secret!
 #
 # # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
+DEBUG = False
 
 # TODO: define allowed hosts based on environement variables.
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '192.168.1.102', 'localhost', '10.0.2.2']
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost']
 
 # Application definition
 
@@ -168,8 +168,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # try to load local_settings.py if it exists
 try:
-    from local_settings import *
-#   from sqlite3_settings import *
+    from .local_settings import *
 except Exception as e:
     import dj_database_url
 
