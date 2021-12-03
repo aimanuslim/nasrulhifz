@@ -106,15 +106,20 @@ class AyatListView(generic.ListView):
     def post(self, request, *args, **kwargs):
         surah_number = request.POST.get('surah_number')[0]
         ayat_number_list = request.POST.getlist('ayat_number')
+        delete_action = 'delete' in request.POST
+
 
         if surah_number:
             surah_number = int(surah_number)
             ayat_number_list = [int(n) for n in ayat_number_list]
             for ayat_number in ayat_number_list:
                 h = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
-                h = h[0]
-                h.last_refreshed = date.today()
-                h.save()
+                if delete_action:
+                    h.delete()
+                else:
+                    h = h[0]
+                    h.last_refreshed = date.today()
+                    h.save()
 
             hifz_list = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number)
 
@@ -500,8 +505,8 @@ def enter(request):
                 message = 'Submission successful'
                 messages.success(request, message, extra_tags='alert alert-success')
         else:
-            message = "Ayat number exceeds limit for surah"
-            messages.warning(request, message, extra_tags='alert alert-danger')
+            for values in hifzform.errors.values():
+                messages.warning(request, values.data[0].message, extra_tags='alert alert-danger')
 
         return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 

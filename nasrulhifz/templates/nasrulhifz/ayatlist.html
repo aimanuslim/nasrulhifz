@@ -3,54 +3,67 @@
 
 {% block content %}
     <div class="mb-4 text-align:left">
-     <button class="btn btn-dark" onclick="GoBackWithRefresh();return false;">Back</button>
-  </div>
+        <a href="{% url 'nasrulhifz:index' %}"><button class="btn btn-dark">Back</button></a>
+    </div>
 
 
     <input class="form-control my-4 " type="text" id="filter-input" onkeyup="filterTable()" placeholder="Search..">
 
 
 
-{% if ayat_list_for_surah %}
-	
-    <form method="POST" action="{% url 'nasrulhifz:ayatlist' ayat_list_for_surah.0.surah_number %}">
-        <input type="hidden" name="surah_number" value="{{ ayat_list_for_surah.0.surah_number }}">
-        {% csrf_token %}
+    {% if ayat_list_for_surah %}
 
-        <div class="text-center sticky-top"><button type="submit" class="btn btn-success">Update Refreshed Status</button></div>
-    <table id="ayat-list-table"  class="my-4 table table-bordered table-hover table-style">
-        <thead>
+        <form method="POST" action="{% url 'nasrulhifz:ayatlist' ayat_list_for_surah.0.surah_number %}">
+            <input type="hidden" name="surah_number" value="{{ ayat_list_for_surah.0.surah_number }}">
+            {% csrf_token %}
 
-            <tr>
-                <th style="text-align:center">Ayat Number</th>
-                <th style="text-align:center">Average Difficulty</th>
-                <th style="text-align:center">Last Time Refreshed</th>
-                <th style="text-align:center">Refreshed ?</th>
-            </tr>
-        </thead>
-        <tbody data-link="row" class="rowlink">
-            {% for hifz in ayat_list_for_surah %}
-            <tr>
-                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</td>
-                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.average_difficulty }}</td>
-                    <td align="center" class='clickable-row' data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }} days</td>
-                    <td align="center">
-                            <input type="checkbox" name="ayat_number" value="{{ hifz.ayat_number }}">
-                            
+            <div class="row sticky-top">
+                <div class="text-center mx-auto">
+                    <button type="submit" class="btn btn-success">Update Refreshed Status</button>
+                </div>
+                <div class="text-center mx-auto">
+                    <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+                </div>
+
+            </div>
+            <table id="ayat-list-table" class="my-4 table table-bordered table-hover table-style">
+                <thead>
+
+                <tr>
+                    <th style="text-align:center">Ayat Number</th>
+                    <th style="text-align:center">Average Difficulty</th>
+                    <th style="text-align:center">Last Time Refreshed</th>
+                    <th style="text-align:center">Selected</th>
+                </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink">
+                {% for hifz in ayat_list_for_surah %}
+                    <tr>
+                        <td align="center" class='clickable-row'
+                            data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.ayat_number }}</td>
+                        <td align="center" class='clickable-row'
+                            data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.average_difficulty }}</td>
+                        <td align="center" class='clickable-row'
+                            data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">{{ hifz.days_since_last_refreshed }}
+                            days
                         </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+                        <td align="center">
+                            <input type="checkbox" name="ayat_number" value="{{ hifz.ayat_number }}">
+
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
 
 
-    </table>
-</form>
-
-   
+            </table>
+        </form>
 
 
 
-{%  else %}
-	<p>No ayats are available.</p>
-{% endif %}
+
+
+    {% else %}
+        <p>No ayats are available.</p>
+    {% endif %}
 {% endblock %}

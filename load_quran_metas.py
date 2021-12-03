@@ -1,6 +1,9 @@
 # Must include this for running standalone script
 # Also will need to execute
 # export DJANGO_SETTINGS_MODULE=mysite.settings
+
+ # exec(open("filename.py").read())
+
 import django
 SECRET_KEY='test'
 django.setup()
