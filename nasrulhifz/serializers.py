@@ -12,10 +12,11 @@ from django.contrib.auth import authenticate
 import re
 from email.utils import parseaddr
 
+
 def emailValid(email):
     rettuples = parseaddr(email)
     if len(rettuples[1]) > 0:
-            return True
+        return True
     return False
 
 
@@ -28,20 +29,18 @@ class AuthCustomTokenSerializer(serializers.Serializer):
         password = attrs.get('password')
 
         if email and password:
-            if not emailValid(email): 
+            if not emailValid(email):
                 msg = 'Email format invalid.'
                 raise ValidationError(msg)
             else:
                 user = authenticate(username=email, password=password)
-                
+
         else:
             msg = 'Email and/or password parameters missing'
             raise ValidationError(msg)
-    
+
         attrs['user'] = user
         return attrs
-        
-            
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -52,31 +51,31 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email']
         )
 
-
         user.set_password(validated_data['password'])
         user.save()
         return user
 
     class Meta:
         model = User
-        fields = ('id', 'email','password')
-        
+        fields = ('id', 'email', 'password')
+
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {
                 'validators': [
-                    #Note: uniquevalidator is causing multiple updates to fail. So neeed to remove this.
+                    # Note: uniquevalidator is causing multiple updates to fail. So neeed to remove this.
                     # Even without uniquevalidator, registering a user with same username in database will fail, so we dont really need to include this uniquevalidator then.
                     # UniqueValidator(
                     #     queryset=User.objects.all(),
                     #     message="Username already registered. Please select a new one."),
-                    ],
+                ],
             },
             'email': {
                 'validators': [
                 ]
             }
         }
+
 
 class HifzListSerializer(serializers.ListSerializer):
 
@@ -94,8 +93,6 @@ class HifzListSerializer(serializers.ListSerializer):
                 return_json.append(self.child.update(hifz, data))
 
         return return_json
-
-
 
 
 class HifzSerializer(serializers.ModelSerializer):
@@ -119,13 +116,16 @@ class HifzSerializer(serializers.ModelSerializer):
             instance.revised_count = instance.revised_count + 1
         instance.save()
         return instance
+
     def get_is_revised(self, obj):
         print(obj)
 
     class Meta:
         model = Hifz
         extra_kwargs = {'juz_number': {'read_only': True}, 'is_revised': {'read_only': True, 'required': False}}
-        fields = ('hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty', 'revised_count', 'is_revised')
+        fields = (
+        'hafiz', 'surah_number', 'ayat_number', 'last_refreshed', 'juz_number', 'average_difficulty', 'revised_count',
+        'is_revised')
         list_serializer_class = HifzListSerializer
         # seems like validators doesnt check if you are updating objects.
         validators = [
@@ -137,12 +137,6 @@ class HifzSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
-
-
-
-
 class QuranMetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuranMeta
@@ -150,10 +144,10 @@ class QuranMetaSerializer(serializers.ModelSerializer):
         # list_serializer_class = QuranMetaListSerializer
         depth = 2
 
+
 class QuranMetaListSerializer(serializers.Serializer):
     data = serializers.ListField(child=QuranMetaSerializer())
-    fields='__all__'
-
+    fields = '__all__'
 
 
 class SurahMetaSerializer(serializers.ModelSerializer):

@@ -5,7 +5,6 @@ from django.urls import reverse_lazy
 
 from django.contrib import messages
 
-
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
 from .serializers import *
 from .forms import HifzForm
@@ -29,8 +28,6 @@ from os.path import join
 
 import sqlite3
 
-
-
 from .permissions import IsOwner
 from django.contrib.auth.models import User
 
@@ -49,9 +46,10 @@ class CreateUserView(generics.CreateAPIView):
 
     model = User
     permission_classes = [
-        permissions.AllowAny # Or anon users can't register
+        permissions.AllowAny  # Or anon users can't register
     ]
     serializer_class = UserSerializer
+
 
 class SignUp(generic.CreateView):
     # form_class = UserCreationForm
@@ -59,10 +57,9 @@ class SignUp(generic.CreateView):
     success_url = reverse_lazy('login')
     template_name = 'registration/signup.html'
 
-
-
     def form_valid(self, form):
-        messages.success(self.request, "You are registered! Please enter your login details to continue.",extra_tags='alert alert-success custom-size')
+        messages.success(self.request, "You are registered! Please enter your login details to continue.",
+                         extra_tags='alert alert-success custom-size')
         return super().form_valid(form)
 
 
@@ -92,7 +89,7 @@ class AyatListView(generic.ListView):
     template_name = 'nasrulhifz/ayatlist.html'
     context_object_name = 'ayat_list_for_surah'
 
-    def get_queryset(self): 
+    def get_queryset(self):
         # hifz = get_object_or_404(Hifz, pk=self.kwargs['pk'])
         # return Hifz.objects.filter(surah_number=hifz.surah_number)
         hifz_list = Hifz.objects.filter(hafiz=self.request.user, surah_number=self.kwargs['surah_number'])
@@ -107,7 +104,6 @@ class AyatListView(generic.ListView):
         surah_number = request.POST.get('surah_number')[0]
         ayat_number_list = request.POST.getlist('ayat_number')
         delete_action = 'delete' in request.POST
-
 
         if surah_number:
             surah_number = int(surah_number)
@@ -132,8 +128,10 @@ class AyatListView(generic.ListView):
         else:
             return Http404()
 
+
 # API for creating, updating, saving new hifzs
-class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+               generics.GenericAPIView):
     serializer_class = HifzSerializer
     permission_classes = (IsOwner,)
 
@@ -149,7 +147,6 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
             return Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number)
 
         return Hifz.objects.filter(hafiz=self.request.user)
-
 
     def get(self, request, *args, **kwargs):
         return self.list(self, request, *args, **kwargs)
@@ -186,7 +183,6 @@ class HifzList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateMode
             return JsonResponse(serializer.data, safe=False, status=201)
         else:
             return JsonResponse(serializer.errors, safe=False, status=400)
-    
 
 
 class HifzDeleteMultiple(generics.GenericAPIView, mixins.DestroyModelMixin):
@@ -199,33 +195,30 @@ class HifzDeleteMultiple(generics.GenericAPIView, mixins.DestroyModelMixin):
             if d.get('surah_number') == None or d.get('ayat_number') == None:
                 return HttpResponseBadRequest("Either ayat number or surah number is missing in body.")
             try:
-                hobj = Hifz.objects.get(hafiz=self.request.user, surah_number=d['surah_number'], ayat_number=d['ayat_number'])
+                hobj = Hifz.objects.get(hafiz=self.request.user, surah_number=d['surah_number'],
+                                        ayat_number=d['ayat_number'])
                 hobj.delete()
             except:
                 raise NotFound('Hifz for deletion does not exist.')
-        
+
         return HttpResponse("Deletion successfull.")
 
 
-
-
-
 class HifzDeleteSingle(generics.DestroyAPIView):
-    serializer_class =  HifzSerializer
+    serializer_class = HifzSerializer
     model = Hifz
     permission_classes = (IsOwner,)
-
 
     def get_object(self):
         surah_number = self.kwargs.get('surah_number')
         ayat_number = self.kwargs.get('ayat_number')
         try:
             return Hifz.objects.get(hafiz=self.request.user,
-                                surah_number=surah_number,
-                                ayat_number=ayat_number)
+                                    surah_number=surah_number,
+                                    ayat_number=ayat_number)
         except:
             raise NotFound('Hifz for deletion does not exist.')
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         surah_number = instance.surah_number
@@ -234,10 +227,10 @@ class HifzDeleteSingle(generics.DestroyAPIView):
         return HttpResponse('Deletion surah number: {}  ayat: {} succeeded'.format(surah_number, ayat_number))
 
 
-
 class QuranMetaList(generics.ListAPIView):
     serializer_class = QuranMetaSerializer
     queryset = QuranMeta.objects.all()
+
     def get_queryset(self):
         queryset = QuranMeta.objects.all()
         surah_number = self.request.query_params.get('surah_number', None)
@@ -264,12 +257,13 @@ class QuranMetaDetail(generics.RetrieveAPIView):
         return QuranMeta.objects.get(surah_number=surah_number, ayat_number=ayat_number)
 
 
-
 class SurahMetaDetail(generics.RetrieveAPIView):
     serializer_class = SurahMetaSerializer
+
     def get_object(self):
         surah_number = self.kwargs.get('surah_number')
         return SurahMeta.objects.get(surah_number=surah_number)
+
 
 class ReviseCustomView(APIView):
     def get(self, request):
@@ -305,29 +299,30 @@ class ReviseCustomView(APIView):
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')
         # juz mode
         elif juz_number is not None:
-            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by('last_refreshed')
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by(
+                'last_refreshed')
         # surah mode
         elif surah_number is not None:
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
                 'last_refreshed')
         elif surah_number_lowerbound is not None and surah_number_upperbound is not None:
-            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number__range=(surah_number_lowerbound, surah_number_upperbound)).order_by(
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number__range=(
+            surah_number_lowerbound, surah_number_upperbound)).order_by(
                 'last_refreshed')
         elif juz_number_lowerbound is not None and juz_number_upperbound is not None:
-            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number__range=(juz_number_lowerbound, juz_number_upperbound)).order_by(
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number__range=(
+            juz_number_lowerbound, juz_number_upperbound)).order_by(
                 'last_refreshed')
 
         # check if hifz_to_revise actually has something
         if len(hifz_to_revise) < 1:
             raise NotFound('Not enough hifz for revision')
 
-
         all_hifz_to_revise_indices = range(len(hifz_to_revise))
-        if len(hifz_to_revise)  >= num_questions:
+        if len(hifz_to_revise) >= num_questions:
             k_value = num_questions
         else:
             k_value = len(hifz_to_revise)
-
 
         hifz_random_indices = random.sample(all_hifz_to_revise_indices, k_value)
 
@@ -338,21 +333,22 @@ class ReviseCustomView(APIView):
         queryset = QuranMeta.objects.none()
 
         # new blind count logic
-        if blind_count % 2 == 0: # even
+        if blind_count % 2 == 0:  # even
             ayat_before = blind_count // 2 - 1
         else:
             ayat_before = blind_count // 2
         ayat_after = blind_count // 2
-        
+
         list_of_streaks = []
         for i, hifz in enumerate(hifz_to_revise):
             surah_meta = SurahMeta.objects.get(surah_number=hifz.surah_number)
             final_blinded_ayat = hifz.ayat_number + blind_count
             if final_blinded_ayat > surah_meta.surah_ayat_max:
                 final_blinded_ayat = surah_meta.surah_ayat_max
-            currjson = {"test_index": [i for i in range(hifz.ayat_number, final_blinded_ayat)], "surah_number": surah_meta.surah_number}
+            currjson = {"test_index": [i for i in range(hifz.ayat_number, final_blinded_ayat)],
+                        "surah_number": surah_meta.surah_number}
             list_of_streaks.append(currjson)
-        
+
         return Response(list_of_streaks)
 
 
@@ -388,7 +384,8 @@ class ReviseList(generics.ListAPIView):
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user).order_by('last_refreshed')
         # juz mode
         elif juz_number is not None:
-            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by('last_refreshed')
+            hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, juz_number=juz_number).order_by(
+                'last_refreshed')
         # surah mode
         elif surah_number is not None:
             hifz_to_revise = Hifz.objects.filter(hafiz=self.request.user, surah_number=surah_number).order_by(
@@ -398,13 +395,11 @@ class ReviseList(generics.ListAPIView):
         if len(hifz_to_revise) < 1:
             raise NotFound('Not enough hifz for revision')
 
-
         all_hifz_to_revise_indices = range(len(hifz_to_revise))
-        if len(hifz_to_revise)  >= streak:
+        if len(hifz_to_revise) >= streak:
             k_value = streak
         else:
             k_value = len(hifz_to_revise)
-
 
         hifz_random_indices = random.sample(all_hifz_to_revise_indices, k_value)
 
@@ -421,7 +416,8 @@ class ReviseList(generics.ListAPIView):
             end_ayat_number = central_ayat_number + blind_count + vicinity
             if start_ayat_number < 1: start_ayat_number = 1
             if end_ayat_number > surah_meta.surah_ayat_max: end_ayat_number = surah_meta.surah_ayat_max
-            queryset = queryset | all.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number, ayat_number__lte=end_ayat_number)
+            queryset = queryset | all.filter(surah_number=hifz.surah_number, ayat_number__gte=start_ayat_number,
+                                             ayat_number__lte=end_ayat_number)
         return queryset
 
 
@@ -510,15 +506,21 @@ def enter(request):
 
         return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
+
 def get_url_given_surah_number_and_ayat_number(request, surah_number, ayat_number):
-    return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(get_page_number_given_ayat_number(surah_number, ayat_number))
+    return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(
+        get_page_number_given_ayat_number(surah_number, ayat_number))
+
 
 def get_page_number_given_ayat_number(surah_number, ayat_number):
     conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
-    res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    res = conn.cursor().execute(
+        "SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(
+            surah_number, ayat_number))
     data = res.fetchone()
     page_number = data[0]
     return page_number
+
 
 def get_page_and_boundaries_given_ayat_and_blind_vicinity(surah_number, ayat_number, vicinity):
     # returns a list of pages with its boundaries, given ayat and its ayat around it
@@ -531,7 +533,9 @@ def get_page_and_boundaries_given_ayat_and_blind_vicinity(surah_number, ayat_num
     qm = SurahMeta.objects.get(surah_number=surah_number)
     if end_range_ayat_number > qm.surah_ayat_max: end_range_ayat_number = qm.surah_ayat_max
 
-    result = conn.cursor().execute("SELECT page_number, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number BETWEEN {} AND {};".format(surah_number, ayat_number, end_range_ayat_number))
+    result = conn.cursor().execute(
+        "SELECT page_number, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number BETWEEN {} AND {};".format(
+            surah_number, ayat_number, end_range_ayat_number))
     result = result.fetchall()
 
     unique_page_numbers = list(set([row[0] for row in result]))
@@ -543,20 +547,19 @@ def get_page_and_boundaries_given_ayat_and_blind_vicinity(surah_number, ayat_num
     return data
 
 
-
-
 def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatlist):
     conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
     boundary_list = list()
-    for ayat_number in ayatlist :
-        res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(page_number, surah_number, ayat_number))    
+    for ayat_number in ayatlist:
+        res = conn.cursor().execute(
+            "SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE page_number={} AND sura_number={} AND ayah_number={};".format(
+                page_number, surah_number, ayat_number))
         data = res.fetchall()
         # unique_line_number = set([gdata[1] for gdata in data])
         # print("Ayat number {} Unique line numbers {}".format(ayat_number, unique_line_number))
         # for ln in unique_line_number:
         #     boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
         # )
-
 
         for glyph_data in data:
             boundary_list.append([
@@ -567,6 +570,7 @@ def get_boundaries_given_list_of_ayat_for_surah(page_number, surah_number, ayatl
             ])
 
     return boundary_list
+
 
 class ReviseNoUser(APIView):
     def get(self, request):
@@ -582,13 +586,17 @@ class ReviseNoUser(APIView):
         test_count = int(test_count)
 
         if mode == 'juzMode':
-            quran_metas_within_range = list(QuranMeta.objects.filter(juz_number__gte=min_range).filter(juz_number__lte=max_range))
+            quran_metas_within_range = list(
+                QuranMeta.objects.filter(juz_number__gte=min_range).filter(juz_number__lte=max_range))
 
         if mode == 'surahMode':
-            quran_metas_within_range = list(QuranMeta.objects.filter(surah_number__gte=min_range).filter(surah_number__lte=max_range))
+            quran_metas_within_range = list(
+                QuranMeta.objects.filter(surah_number__gte=min_range).filter(surah_number__lte=max_range))
 
         selected_qm = random.sample(quran_metas_within_range, test_count)
-        question_data = [get_page_and_boundaries_given_ayat_and_blind_vicinity(qm.surah_number, qm.ayat_number, verse_to_be_hidden) for qm in selected_qm]
+        question_data = [
+            get_page_and_boundaries_given_ayat_and_blind_vicinity(qm.surah_number, qm.ayat_number, verse_to_be_hidden)
+            for qm in selected_qm]
 
         return Response(question_data)
 
@@ -611,32 +619,28 @@ def revise(request):
 
             return render(request, 'nasrulhifz/revise.html')
 
-
         if request.POST.get('mode-select') and request.POST.get('streak-length'):
             streak_length = int(request.POST.get('streak-length'))
             mode = request.POST.get('mode-select')
 
-
-
             if mode == 'juz_mode':
                 unit_number = int(request.POST.get('unit-number'))
-                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, juz_number=unit_number).order_by('last_refreshed')
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, juz_number=unit_number).order_by(
+                    'last_refreshed')
             if mode == 'surah_mode':
                 unit_number = int(request.POST.get('unit-number'))
-                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, surah_number=unit_number).order_by('last_refreshed')
+                hifz_to_revise = Hifz.objects.filter(hafiz=request.user, surah_number=unit_number).order_by(
+                    'last_refreshed')
 
             if mode == 'free_mode':
                 hifz_to_revise = Hifz.objects.filter(hafiz=request.user).order_by('last_refreshed')
 
-
-
-
-
-            hifz_random_indices = random.sample(range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length), streak_length)
+            hifz_random_indices = random.sample(
+                range(len(hifz_to_revise)) if len(hifz_to_revise) >= streak_length else range(streak_length),
+                streak_length)
 
             if len(hifz_to_revise) > 1:
                 hifz_to_revise = take(hifz_to_revise, hifz_random_indices)
-
 
             ## new implementation (w2 sept 2020), for each hifz to revise, return its vicinity information
             blind_count = request.POST.get('blind-count')
@@ -656,8 +660,10 @@ def revise(request):
                     blinded_ayats.append(hifz.ayat_number + i + 1)
                     blinded_ayats.append(hifz.ayat_number - i - 1)
                 blinded_ayats.append(hifz.ayat_number)
-                
-                boundaries_for_current_tested_hifz = get_boundaries_given_list_of_ayat_for_surah(page_number, hifz.surah_number, blinded_ayats)
+
+                boundaries_for_current_tested_hifz = get_boundaries_given_list_of_ayat_for_surah(page_number,
+                                                                                                 hifz.surah_number,
+                                                                                                 blinded_ayats)
                 meta.append([
                     url,
                     boundaries_for_current_tested_hifz,
@@ -667,8 +673,6 @@ def revise(request):
                 ])
             return render(request, 'nasrulhifz/revise.html', {'meta': meta})
         return render(request, 'nasrulhifz/revise.html')
-
-
 
 
 def decide_show_or_hidden(difficulty):
@@ -683,8 +687,6 @@ def decide_show_or_hidden(difficulty):
         return True
 
 
-
-
 def get_string_table_type_from_difficulty(level):
     if level == 1: return "table-danger"
     if level == 2: return "table-primary"
@@ -696,13 +698,13 @@ def get_boundary_given_list_of_glyph_data(glyph_coord_list):
     maxxs = [data[4] for data in glyph_coord_list]
     minys = [data[5] for data in glyph_coord_list]
     maxys = [data[6] for data in glyph_coord_list]
-    
+
     absminx = min(minxs)
     absminy = min(minys)
     absmaxx = max(maxxs)
     absmaxy = max(maxys)
     return [
-        absminx, 
+        absminx,
         absmaxx,
         absminy,
         absmaxy
@@ -711,7 +713,9 @@ def get_boundary_given_list_of_glyph_data(glyph_coord_list):
 
 def return_ayat_details(request, user, surah_number, ayat_number):
     conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
-    res = conn.cursor().execute("SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    res = conn.cursor().execute(
+        "SELECT page_number, line_number, position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(
+            surah_number, ayat_number))
     data = res.fetchall()
 
     unique_line_number = set([gdata[1] for gdata in data])
@@ -720,8 +724,7 @@ def return_ayat_details(request, user, surah_number, ayat_number):
     boundary_list = list()
     for ln in unique_line_number:
         boundary_list.append(get_boundary_given_list_of_glyph_data([gdata for gdata in data if gdata[1] == ln])
-        )
-
+                             )
 
     qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
     if len(qm) == 1:
@@ -759,15 +762,19 @@ def return_ayat_details(request, user, surah_number, ayat_number):
     data = {'display_with_meta': display_with_meta,
             'surah_name': surah_name,
             'hifz_exists': hifz_exists,
-            'surah_number' : surah_number,
-            'image_url': 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(page_number),
+            'surah_number': surah_number,
+            'image_url': 'http://' + request.META[
+                'HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(page_number),
             'gcoords': boundary_list
             }
     return data
 
+
 def get_length_of_word_indexes(surah_number, ayat_number):
     conn = sqlite3.connect(join("data", "ayahinfo_1260.db"))
-    res = conn.cursor().execute("SELECT position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(surah_number, ayat_number))
+    res = conn.cursor().execute(
+        "SELECT position, min_x, max_x, min_y, max_y FROM glyphs WHERE sura_number={} AND ayah_number={};".format(
+            surah_number, ayat_number))
     data = res.fetchall()
     return len(data)
 
@@ -822,6 +829,7 @@ def findMetaSurah(surah_number):
     ayat_limit = len(QuranMeta.objects.filter(surah_number=surah_number))
     return ayat_limit
 
+
 def getSurahString(surah_number):
     sm = SurahMeta.objects.filter(surah_number=surah_number)
     sm = sm[0]
@@ -852,5 +860,3 @@ class ObtainAuthToken(APIView):
         }
 
         return Response(content)
-    
-

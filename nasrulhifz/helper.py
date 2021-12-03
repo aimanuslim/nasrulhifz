@@ -14,6 +14,3 @@ def get_appropriate_timeunits_from_day(days):
     if months: return str(months) + " months " + str(weeks) + " weeks"
     if weeks: return str(weeks) + " weeks " + str(days) + " days"
     return str(days) + " days"
-
-
-
