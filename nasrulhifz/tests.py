@@ -90,3 +90,8 @@ class AyatListTest(LoginTest):
             if "0 days" in td.text: has_0_days = True
 
         self.assertTrue(has_0_days)
+        # TODO: test delete and check removed (single)
+        # TODO: test delete and check removed (multiple)
+        # TODO: test clicking back button
+        # TODO: test sorting
+        # TODO: test delete with no checked boxes
