@@ -1,3 +1,5 @@
+import random
+
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -68,21 +70,37 @@ class AyatDisplayTest(LoginTest):
 
 
 class AyatListTest(LoginTest):
-    def getFirstCheckboxAndTick(self):
+    def getFirstCheckboxAndTick(self) -> int:
         checkboxes = self.wd.find_elements_by_name('ayat_number')
         first_checkbox = checkboxes[0]
         first_checkbox.click()
+        return int(first_checkbox.get_attribute('value'))
 
     def clickUpdateButton(self):
         updateButton = self.wd.find_element_by_class_name('btn-success')
         updateButton.click()
+
+    def clickDeleteButton(self):
+        deleteButton = self.wd.find_element_by_name('delete')
+        deleteButton.click()
+
+    def clickMultipleAyat(self):
+        checkboxes = self.wd.find_elements_by_name('ayat_number')
+        # checkboxes_count = len(checkboxes)
+        deleted_ayat_numbers = []
+        if len(checkboxes) > 2:
+            to_select_checkboxes = random.sample(checkboxes, 2)
+            for checkbox in to_select_checkboxes:
+                checkbox.click()
+                deleted_ayat_numbers.append(int(checkbox.get_attribute('value')))
+        return deleted_ayat_numbers
 
     def testTickRefreshAndUpdate(self):
         self.loginValid()
         self.clickFirstSurah()
         self.getFirstCheckboxAndTick()
         self.clickUpdateButton()
-        trs = self.wd.find_elements_by_tag_name("tr")
+        trs = self.wd.find_elements_by_tag_name("tr")  # all rows
         first_tr = trs[1]
         tds = first_tr.find_elements_by_css_selector("*")
         has_0_days = False
@@ -91,7 +109,29 @@ class AyatListTest(LoginTest):
 
         self.assertTrue(has_0_days)
         # TODO: test delete and check removed (single)
-        # TODO: test delete and check removed (multiple)
+
+    def testDeleteAyat(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        deleted_ayat_number = self.getFirstCheckboxAndTick()
+        self.clickDeleteButton()
+        trs = self.wd.find_elements_by_tag_name("tr")  # all rows
+        for tr in trs[1:]:  # exclude header row
+            tds = tr.find_elements_by_css_selector("*")
+            ayat_number_data = tds[0]
+            assert deleted_ayat_number != int(ayat_number_data.text)
+
+    def testDeleteMultipleAyat(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        deleted_ayat_numbers = self.clickMultipleAyat()
+        self.clickDeleteButton()
+        trs = self.wd.find_elements_by_tag_name("tr")  # all rows
+        for tr in trs[1:]:  # exclude header row
+            tds = tr.find_elements_by_css_selector("*")
+            ayat_number_data = tds[0]
+            assert int(ayat_number_data.text) not in deleted_ayat_numbers
+
         # TODO: test clicking back button
         # TODO: test sorting
         # TODO: test delete with no checked boxes
