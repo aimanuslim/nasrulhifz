@@ -1,27 +1,27 @@
 {% extends "base_authenticated.html" %}
-{% load ayat_extras%}
+{% load ayat_extras %}
 
 
 
 {% block content %}
 
-<div class="mb-4 text-align:left">
-     <button class="btn btn-dark" onclick="history.back(-1)">Back</button>
-  </div>
+    <div class="mb-4 text-align:left">
+        <button class="btn btn-dark" onclick="history.back(-1)" name="back">Back</button>
+    </div>
 
 
     {% include "nasrulhifz/ayatdisplay.html" %}
 
 
-<br>
+    <br>
     {% if messages %}
-    {% for message in messages %}
+        {% for message in messages %}
 
-    <div class="alert alert-success">
-        {{message}}
-    </div>
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
 
-    {% endfor %}
+        {% endfor %}
     {% endif %}
 
 

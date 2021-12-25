@@ -132,6 +132,22 @@ class AyatListTest(LoginTest):
             ayat_number_data = tds[0]
             assert int(ayat_number_data.text) not in deleted_ayat_numbers
 
-        # TODO: test clicking back button
-        # TODO: test sorting
-        # TODO: test delete with no checked boxes
+    def testClickBackButtonFromAyatList(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        back_button = self.wd.find_element_by_name("back")
+        back_button.click()
+        assert self.wd.find_elements_by_xpath("//*[contains(text(), 'Surah List')]")
+
+    def testClickBackButtonFromAyatDetails(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        first_row = self.wd.find_elements_by_tag_name("tr")[1]
+        first_cell = first_row.find_elements_by_css_selector("*")[0]
+        first_cell.click()
+        back_button = self.wd.find_element_by_name("back")
+        back_button.click()
+        assert "ayats" in self.wd.current_url
+
+# TODO: test sorting
+# TODO: test delete with no checked boxes
