@@ -149,5 +149,28 @@ class AyatListTest(LoginTest):
         back_button.click()
         assert "ayats" in self.wd.current_url
 
-# TODO: test sorting
-# TODO: test delete with no checked boxes
+    def testSortTable(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        first_column = self.wd.find_elements_by_xpath("//td[1]")
+        # check that first column is already sorted.
+        ayat_number_list = [int(td.text) for td in first_column]
+        assert ayat_number_list == sorted(ayat_number_list)
+
+        header_row = self.wd.find_elements_by_tag_name("tr")[0]
+        first_column_header = header_row.find_elements_by_css_selector("*")[0]
+        first_column_header.click()
+        first_column_header.click()
+
+        # check that the first column has been sorted in reverse
+        first_column_after_sort_click = self.wd.find_elements_by_xpath("//td[1]")
+        ayat_number_list_after_sort = [int(td.text) for td in first_column_after_sort_click]
+        assert ayat_number_list_after_sort == sorted(ayat_number_list, reverse=True)
+
+    def testDeleteNoBoxesCheced(self):
+        self.loginValid()
+        self.clickFirstSurah()
+        initial_row_count = len(self.wd.find_elements_by_tag_name("tr"))
+        self.clickDeleteButton()
+        final_row_count = len(self.wd.find_elements_by_tag_name("tr"))
+        assert initial_row_count == final_row_count
