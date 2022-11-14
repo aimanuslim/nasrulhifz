@@ -14,6 +14,7 @@ $(document).ready(function(){
     $("#limit-button").click(function(){
         if(showingLimit){
             $('#ayat-mode-input').val('ayat_number')
+            $('#group-ayat').hide();
             $('#limit-forms').hide();
 
             $('#min-limit-input').val('');
@@ -26,6 +27,7 @@ $(document).ready(function(){
         } else{
             $('#ayat-mode-input').val('ayat_limit')
             $('#limit-forms').show();
+            $('#group-ayat').show();
             $('#ayat-number-input').hide();
             $('#display-button').hide()
 

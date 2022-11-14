@@ -91,7 +91,19 @@ class HifzForm(forms.Form):
         'name': 'upper_bound',
         'id': 'max-limit-input',
     }), required=False)
+    
+    is_group = forms.BooleanField(widget=forms.CheckboxInput(attrs={
+        'class': 'form-check-input',
+        'id': 'is-group'
+    }))
 
+    tag = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control form-control-lg surah-param-inputs',
+        'placeholder': 'Tag',
+        'name': 'tag',
+        'id': 'tag-input'
+    }))
+    
     def clean(self):
         cleaned_data = super().clean()
         surah_number = cleaned_data.get('surah_number')

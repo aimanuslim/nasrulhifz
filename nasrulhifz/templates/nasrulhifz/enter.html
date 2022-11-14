@@ -1,96 +1,99 @@
 {% extends "base_authenticated.html" %}
-
 {% block content %}
- 
-
-<form method="GET" action="{% url 'nasrulhifz:enter' %}" >
-	{% csrf_token %}
-    <div class="form-group">
-			<div class="m-4">
-                {{  hifzform.surah_number }}
+    <form method="GET" action="{% url 'nasrulhifz:enter' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="container">
+                <div class="row">
+                    <div class="col">{{  hifzform.surah_number }}</div>
+                    <div class="col">
+                        {{  hifzform.ayat_number }}
+                        <div class="container" id="limit-forms" style="display: none;">
+                            <div class="row">
+                                <div class="col">{{ hifzform.min_range }}</div>
+                                <div class="col">{{ hifzform.max_range }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"></div>
+                <div class="row align-items-center justify-content-around my-2">
+                    <div class="col-2" id="group-ayat" style="display: none;">
+                        <div class="form-check">
+                            {{ hifzform.is_group }}
+                            <label class="form-check-label" for="is-group">Group ayats</label>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="row form-group align-items-center justify-content-center">
+                            <div class="col">
+                                <label for="diff" class="m-3">Set default difficulty for words:</label>
+                            </div>
+                            <div class="col">
+                                <select class="form-control" id="diff" name="default_difficulty">
+                                    <option>
+                                        3
+                                    </option>
+                                    <option>
+                                        2
+                                    </option>
+                                    <option>
+                                        1
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-3">
+                                    <label for="tag">Enter ayat tag:</label>
+                                </div>
+                                <div class="col-6">{{ hifzform.tag }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-			<div class="m-4">
-                {{  hifzform.ayat_number }}
+            <div class="text-center align-self-center">
+                <input id="ayat-mode-input"
+                       type="hidden"
+                       name="ayat-mode"
+                       value="ayat_number"/>
+                <button id="limit-button" class="btn btn-outline-secondary" type="button">Enter Limits</button>
             </div>
-		<div id="limit-forms" style="display: none;">
-            <div class="m-4">
-                    {{  hifzform.min_range }}
+        </div>
+        <div class="d-flex justify-content-center">
+            <button id="display-button" class="btn-primary btn" type="submit">Display Ayat</button>
+        </div>
+        <br/>
+        {% if display_with_meta %}
+            <div class="mydiv">
+                <button id="close-display"
+                        type="button"
+                        class="close topleft"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {% include "nasrulhifz/ayatdisplay.html" %}
             </div>
-            <div class="m-4">
-                    {{  hifzform.max_range }}
-			</div>
-		</div>
-
-		<div class="text-center align-self-center">
-			<input id="ayat-mode-input" type="hidden" name="ayat-mode" value="ayat_number">
-			<button id="limit-button" class="btn btn-outline-secondary" type="button">Enter Limits</button>
-
-
-		</div>
-
-			<div class="form-group">
-					<label for="diff" class="m-3">Set default difficulty for words:</label>
-					<select class="form-control" id="diff" name="default_difficulty">
-						<option>3</option>
-						<option>2</option>
-						<option>1</option>
-					</select>
-				</div>
-    </div>
-
-
-	<div class="d-flex justify-content-center">
-	<button id="display-button" class="btn-primary btn" type="submit">
-		Display Ayat
-	</button>
-	</div>
-
-	<br>
-
-
-
-	{% if display_with_meta %}
-
-		<div class='mydiv'>
-		<button id="close-display" type="button" class="close topleft" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-		{% include "nasrulhifz/ayatdisplay.html" %}
-		</div>
-		
-	{% endif %}
-
-  <div class="d-flex justify-content-center">
-  		<button id="submit-button" class="btn-success custom-submit btn" type="submit" formmethod="post">
-			{% if not hifz_exists %}
-				Submit
-			{% else %}
-				Update
-			{% endif %}
-  		</button>
-  </div>
-
-  <br>
-
-
-
-</form>
-
-
-
-{% if messages %}
-    {% for message in messages %}
-
-    <div class="{{message.tags}}">
-	  {{message}}
-	</div>
-
-    {% endfor %}
-{% endif %}
-
-
+        {% endif %}
+        <div class="d-flex justify-content-center">
+            <button id="submit-button"
+                    class="btn-success custom-submit btn"
+                    type="submit"
+                    formmethod="post">
+                {% if not hifz_exists %}
+                    Submit
+                {% else %}
+                    Update
+                {% endif %}
+            </button>
+        </div>
+        <br/>
+    </form>
+    {% if messages %}
+        {% for message in messages %}<div class="{{ message.tags }}">{{ message }}</div>{% endfor %}
+    {% endif %}
 {% endblock %}
-
-
-
-
