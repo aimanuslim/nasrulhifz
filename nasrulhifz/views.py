@@ -1,9 +1,10 @@
 from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponseNotFound, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.urls import reverse_lazy
 
 from django.contrib import messages
+from django.db import transaction
 
 from .models import Hifz, QuranMeta, WordIndex, SurahMeta
 from .serializers import *
@@ -101,7 +102,7 @@ class AyatListView(generic.ListView):
         return hifz_list
 
     def post(self, request, *args, **kwargs):
-        surah_number = request.POST.get('surah_number')[0]
+        surah_number = request.POST.get('surah_number')
         ayat_number_list = request.POST.getlist('ayat_number')
         delete_action = 'delete' in request.POST
 
@@ -436,12 +437,30 @@ def detail(request, surah_number, ayat_number):
         messages.success(request, message)
         return HttpResponseRedirect("")
 
+def get_image(request):
+    url = get_url_given_surah_number_and_ayat_number(request, request.GET.get('surah_number'), request.GET.get('ayat_number'))
+    return JsonResponse({'url': url}) 
 
 @login_required
 def enter(request):
     if request.method == 'GET':
         hifzform = HifzForm(request.GET or None)
         # print("Check limits {}".format(request.GET.get('change_limits')))
+        if request.GET.get('ayat-mode'):
+            ayat_mode = request.GET.get('ayat-mode')
+            if ayat_mode == 'ayat_number': 
+                enter_tag = True
+                # ayat_range = True
+            else: 
+                # ayat_range = True
+                enter_tag = False
+            
+            return render(request, 'nasrulhifz/enter.html', {
+                'hifzform': hifzform, 
+                'enter_tag': enter_tag,
+                'ayat_range': ayat_range
+                })
+            
         if request.GET.get('change_limits'):
             surah_number = request.GET.get('surah_number')
             surah_limit = findMetaSurah(surah_number)
@@ -460,7 +479,6 @@ def enter(request):
             else:
 
                 data['hifzform'] = hifzform
-                # print(data)
 
                 return render(request, 'nasrulhifz/enter.html', data)
         else:
@@ -478,24 +496,16 @@ def enter(request):
 
         if hifzform.is_valid():
             ayat_list = []
-            if ayat_mode == 'ayat_number':
-                ayat_list.append(ayat_number)
-
-            if ayat_mode == 'ayat_limit':
-                for an in range(int(lower_bound), int(upper_bound) + 1):
-                    ayat_list.append(an)
+            for n in range(int(lower_bound), int(upper_bound) + 1):
+                ayat_list.append(n)
 
             ayat_limit = findMetaSurah(surah_number)
 
             for an in ayat_list:
-                if int(an) <= ayat_limit:
-                    dd = 3
-                    if default_difficulty:
-                        dd = default_difficulty
-                    save_word_index_difficulty(request, surah_number, an, dd)
-                else:
-                    message = "Ayat number {} exceeds limit for surah".format(an)
-                    messages.warning(request, message, extra_tags='alert alert-danger')
+                dd = 3
+                if default_difficulty:
+                    dd = default_difficulty
+                create_hifz_with_wordindex(request, surah_number, an, dd)
 
             if not failed_saving:
                 message = 'Submission successful'
@@ -778,42 +788,35 @@ def get_length_of_word_indexes(surah_number, ayat_number):
     data = res.fetchall()
     return len(data)
 
+@transaction.atomic
+def create_hifz_with_wordindex(request, surah_number, ayat_number, default_difficulty=3):
+    # Get the length/count of WordIndex objects needed
+    wordindex_length = get_length_of_word_indexes(surah_number, ayat_number)
 
-def save_word_index_difficulty(request, surah_number, ayat_number, default_difficulty=3):
-    hifz = Hifz.objects.filter(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
+    # Create the Hifz object
+    hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number, juz_number= QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].juz_number,
+                  average_difficulty= default_difficulty)
+    hifz.save()
 
-    if hifz:
-        hifz = hifz[0]
-        hifz.last_refreshed = date.today()
-        wset = hifz.wordindex_set.all()
-        len_wset = len(wset)
-    else:
-        juz_number = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].juz_number
-        hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number, juz_number=juz_number)
-        hifz.average_difficulty = default_difficulty
-        hifz.save()
+    # Create the WordIndex objects for the Hifz object
+    word_indices = [WordIndex(hifz=hifz, index=i, difficulty=default_difficulty) for i in range(wordindex_length)]
+    WordIndex.objects.bulk_create(word_indices)
 
-        len_wset = get_length_of_word_indexes(surah_number, ayat_number)
-        wset = None
+    return hifz
 
+def create_word_indices(request, wset, len_wset, hifz, default_difficulty):
+    word_indices = []
     for i in range(0, len_wset):
         wordindex_difficulty = request.POST.get("class-word-" + str(i))
         if not wordindex_difficulty:
             wordindex_difficulty = default_difficulty
 
-        if wset:
-            w = wset.filter(index=i)
-            w = w[0]
-            # print("Index {} Old Difficulty {} New Difficulty {}".format(w.index, w.difficulty, wordindex_difficulty))
-            w.difficulty = int(wordindex_difficulty)
-            w.save()
-        else:
-            # print("Creating new word indices")
-            WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz).save()
+        obj, created = wset.update_or_create(hifz=hifz, index=i, defaults={"difficulty": int(wordindex_difficulty)})
+        if created:
+            obj.hifz = hifz
+            word_indices.append(obj)
 
-    hifz.save_average_difficulty()
-    hifz.save()
-
+    return word_indices
 
 def findMetaAyat(surah_number, ayat_number):
     qm = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)
