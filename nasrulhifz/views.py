@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db import transaction
 
-from .models import Hifz, QuranMeta, WordIndex, SurahMeta
+from .models import Hifz, QuranMeta, WordIndex, SurahMeta, Category
 from .serializers import *
 from .forms import HifzForm
 from numpy import take
@@ -445,6 +445,8 @@ def get_image(request):
 def enter(request):
     if request.method == 'GET':
         hifzform = HifzForm(request.GET or None)
+        categories = Category.objects.all()
+        print(categories)
         # print("Check limits {}".format(request.GET.get('change_limits')))
         if request.GET.get('ayat-mode'):
             ayat_mode = request.GET.get('ayat-mode')
@@ -479,10 +481,11 @@ def enter(request):
             else:
 
                 data['hifzform'] = hifzform
+                data['categories'] = categories
 
                 return render(request, 'nasrulhifz/enter.html', data)
         else:
-            return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
+            return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform, 'categories': categories})
 
     if request.method == 'POST':
         hifzform = HifzForm(request.POST)
@@ -493,6 +496,17 @@ def enter(request):
         ayat_mode = request.POST.get('ayat-mode')
         default_difficulty = request.POST.get('default_difficulty')
         failed_saving = False
+        
+        # Get the category field from the form data
+        category_id = request.POST.get('category')
+        new_category_name = request.POST.get('new_category')
+
+        # add a new counter
+        
+        # Create a new category if a name is provided
+        if new_category_name:
+            category = Category.objects.create(name=new_category_name)
+            category_id = category.id
 
         if hifzform.is_valid():
             ayat_list = []
@@ -505,7 +519,8 @@ def enter(request):
                 dd = 3
                 if default_difficulty:
                     dd = default_difficulty
-                create_hifz_with_wordindex(request, surah_number, an, dd)
+                save_hifz_with_wordindex(request, surah_number, an, dd, category_id)
+                # create_hifz_with_wordindex(request, surah_number, an, dd, category_id)
 
             if not failed_saving:
                 message = 'Submission successful'
@@ -789,13 +804,59 @@ def get_length_of_word_indexes(surah_number, ayat_number):
     return len(data)
 
 @transaction.atomic
-def create_hifz_with_wordindex(request, surah_number, ayat_number, default_difficulty=3):
+def save_hifz_with_wordindex(request, surah_number, ayat_number, default_difficulty, category_id=None):
+    # Use get_or_create instead of filter + create
+    hifz, _ = Hifz.objects.get_or_create(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number)
+
+    # Update the existing category or create a new one
+    if category_id:
+        category = Category.objects.filter(id=category_id).first()
+        if not category:
+            messages.warning(request, f"Invalid category ID: {category_id}", extra_tags='alert alert-danger')
+            return
+    else:
+        new_category_name = request.POST.get('new_category')
+        if new_category_name:
+            category, _ = Category.objects.get_or_create(name=new_category_name)
+        else:
+            category = None
+
+    # Update the Hifz and WordIndex objects
+    hifz.last_refreshed = date.today()
+    hifz.juz_number = QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].juz_number
+    hifz.average_difficulty = default_difficulty
+    hifz.save()
+
+    wset = WordIndex.objects.filter(hifz=hifz)
+    len_wset = get_length_of_word_indexes(surah_number, ayat_number)
+    word_indices = []
+    for i in range(0, len_wset):
+        wordindex_difficulty = request.POST.get("class-word-" + str(i))
+        if not wordindex_difficulty:
+            wordindex_difficulty = default_difficulty
+
+        try:
+            w = wset.get(index=i)
+            w.difficulty = int(wordindex_difficulty)
+            w.save()
+        except WordIndex.DoesNotExist:
+            word_indices.append(WordIndex(index=i, difficulty=int(wordindex_difficulty), hifz=hifz))
+
+    WordIndex.objects.bulk_create(word_indices)
+
+    hifz.save_average_difficulty()
+    hifz.category = category  # Update the category field
+    hifz.save()
+
+
+@transaction.atomic
+def create_hifz_with_wordindex(request, surah_number, ayat_number, default_difficulty, category_id):
     # Get the length/count of WordIndex objects needed
     wordindex_length = get_length_of_word_indexes(surah_number, ayat_number)
 
     # Create the Hifz object
     hifz = Hifz(hafiz=request.user, surah_number=surah_number, ayat_number=ayat_number, juz_number= QuranMeta.objects.filter(surah_number=surah_number, ayat_number=ayat_number)[0].juz_number,
-                  average_difficulty= default_difficulty)
+                  average_difficulty= default_difficulty, category_id=category_id)
     hifz.save()
 
     # Create the WordIndex objects for the Hifz object

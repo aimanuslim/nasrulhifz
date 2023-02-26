@@ -32,6 +32,11 @@ class Glyphs(models.Model):
         return "Page: {} Line: {} Sura: {} Aya: {}".format(self.page_number, self.line_number, self.sura_number,
                                                            self.ayah_number)
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 # Create your models here.
 class Hifz(models.Model):
@@ -40,8 +45,9 @@ class Hifz(models.Model):
     ayat_number = models.SmallIntegerField()
     last_refreshed = models.DateField(_("Date"), default=datetime.date.today)
     juz_number = models.SmallIntegerField(blank=True)
-    average_difficulty = models.SmallIntegerField()
+    average_difficulty = models.SmallIntegerField(default=3)
     revised_count = models.IntegerField(_("Revised Count"), default=1)
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -79,6 +85,7 @@ class Hifz(models.Model):
         if self.surah_number is not None and self.ayat_number is not None:
             res = QuranMeta.objects.get(surah_number=self.surah_number, ayat_number=self.ayat_number)
             self.juz_number = res.juz_number + 1
+
 
 
 class WordIndex(models.Model):
