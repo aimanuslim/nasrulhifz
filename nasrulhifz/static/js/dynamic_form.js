@@ -20,6 +20,10 @@ $(document).ready(function () {
     $("#surah-number-form").change(function () {
         var surah = $("#surah-number-form").val();
         var verseRange = [1, surahData[surah]];
+        
+        $("#range-values").html(verseRange[0] + " - " + verseRange[1]);
+        $("#range-values").show();
+
         $("#range-slider").slider({
             range: true,
             min: verseRange[0],
