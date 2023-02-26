@@ -24,6 +24,25 @@ jQuery(document).ready(function($) {
 
 });
 
+
+
+function selectAll() {
+    var checkboxes = document.getElementsByName('ayat_number');
+    var selectAllBtn = document.getElementById('select-all-btn');
+    var checked = false;
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = !checkboxes[i].checked;
+        checked |= checkboxes[i].checked;
+    }
+    if (checked) {
+        selectAllBtn.textContent = 'Deselect All';
+    } else {
+        selectAllBtn.textContent = 'Select All';
+    }
+    return false;
+}
+
+
 function filterTable() {
   // Declare variables
   var input, filter, table, tr, td, i, present;
