@@ -1,0 +1,59 @@
+{% extends 'base_authenticated.html' %}
+{% block content %}
+  <h1>Hifzs by Category</h1>
+  <label for="category-select">Select a Category:</label>
+  <select class="form-control" id="category-select" name="category">
+    <option value="">
+      All Categories
+    </option>
+    {% for category in category_list %}
+      <option value="{{ category.id }}"
+              {% if category.id == selected_category_id %}selected{% endif %}>
+        {{ category.name }}
+      </option>
+    {% endfor %}
+  </select>
+  {% if hifz_list %}
+    <h2>{{ selected_category.name }}</h2>
+    <table class="my-4 table table-bordered table-hover table-style">
+      <thead>
+        <tr>
+          <th>Surah Number</th>
+          <th>Ayat Number</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for hifz in hifz_list %}
+          <tr data-category-id="{{ hifz.category_id }}">
+    <td>{{ hifz.surah_number }}</td>
+    <td>{{ hifz.ayat_number }}</td>
+    <td>{{ hifz.category }}</td>
+  </tr>
+        {% endfor %}
+      </tbody>
+    {% else %}
+      <p>No hifzs found.</p>
+    {% endif %}
+      <script>
+    const selectElement = document.querySelector('#category-select');
+const tableRows = document.querySelectorAll('tbody tr');
+
+selectElement.addEventListener('change', (event) => {
+  const selectedCategory = event.target.value;
+  tableRows.forEach(row => {
+    const rowCategoryId = row.getAttribute('data-category-id');
+    if (selectedCategory === '' || rowCategoryId === selectedCategory) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+});
+    </script>
+
+  {% endblock %}
+
+
+
+

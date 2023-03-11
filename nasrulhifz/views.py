@@ -490,7 +490,6 @@ def enter(request):
     if request.method == 'POST':
         hifzform = HifzForm(request.POST)
         surah_number = request.POST.get('surah_number')
-        ayat_number = request.POST.get('ayat_number')
         lower_bound = request.POST.get('min_range')
         upper_bound = request.POST.get('max_range')
         ayat_mode = request.POST.get('ayat-mode')
@@ -501,8 +500,6 @@ def enter(request):
         category_id = request.POST.get('category')
         new_category_name = request.POST.get('new_category')
 
-        # add a new counter
-        
         # Create a new category if a name is provided
         if new_category_name:
             category = Category.objects.create(name=new_category_name)
@@ -513,7 +510,6 @@ def enter(request):
             for n in range(int(lower_bound), int(upper_bound) + 1):
                 ayat_list.append(n)
 
-            ayat_limit = findMetaSurah(surah_number)
 
             for an in ayat_list:
                 dd = 3
@@ -531,6 +527,29 @@ def enter(request):
 
         return render(request, 'nasrulhifz/enter.html', {'hifzform': hifzform})
 
+@login_required
+def recordrevised(request):
+    hifzform = HifzForm(request.GET or None)
+    
+    if request.method == 'POST':
+        hifzform = HifzForm(request.POST)
+        
+        if hifzform.is_valid():
+            ayat_list = []
+            for n in range(int(lower_bound), int(upper_bound) + 1):
+                ayat_list.append(n)
+
+
+            for an in ayat_list:
+                update_hifz_refreshed_date(request, surah_number, an)
+        
+        
+    return render(request, 'nasrulhifz/record_revised.html', {'hifzform': hifzform})
+
+def update_hifz_refreshed_date(request, surah_number, ayat_number):
+    hifz = Hifz.objects.get(user=request.user, surah_number=surah_number, ayat_number=ayat_number)
+    hifz.refreshed_date = datetime.datetime.now()
+    hifz.save()
 
 def get_url_given_surah_number_and_ayat_number(request, surah_number, ayat_number):
     return 'http://' + request.META['HTTP_HOST'] + "/nasrulhifz/media/images/width_1260/page{:03}.png".format(
@@ -624,6 +643,25 @@ class ReviseNoUser(APIView):
             for qm in selected_qm]
 
         return Response(question_data)
+
+@login_required
+def hifz_list(request):
+    category_list = Category.objects.all()
+    selected_category_id = request.GET.get('category')
+    if selected_category_id:
+        hifz_list = Hifz.objects.filter(category=selected_category_id)
+        selected_category = Category.objects.get(pk=selected_category_id)
+    else:
+        hifz_list = Hifz.objects.all()
+        selected_category = None
+
+    context = {
+        'category_list': category_list,
+        'hifz_list': hifz_list,
+        'selected_category_id': selected_category_id,
+        'selected_category': selected_category,
+    }
+    return render(request, 'nasrulhifz/hifz_list.html', context)
 
 
 @login_required

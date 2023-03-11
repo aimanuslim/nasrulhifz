@@ -14,7 +14,10 @@ urlpatterns = [
                   path('', login_required(views.IndexView.as_view()), name='index'),
                   path('<int:surah_number>/ayats/', login_required(views.AyatListView.as_view()), name="ayatlist"),
                   path('enter/', views.enter, name='enter'),
+                  path('recordrevised/', views.recordrevised, name='recordrevised'),
+                  path('hifzlist/', views.hifz_list, name='hifz_list'),
                   path('revise/', views.revise, name='revise'),
+                  path('quranimage/', views.get_image, name='get_image'),
                   path('<int:surah_number>/ayats/<int:ayat_number>/', views.detail, name="detail"),
 
                   # API related uri

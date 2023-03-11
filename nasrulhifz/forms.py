@@ -77,44 +77,10 @@ class HifzForm(forms.Form):
         'name': 'ayat_number',
         'id': 'ayat-number-input',
     }), required=False)
-
-    min_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
-        'class': 'form-control form-control-lg surah-param-inputs',
-        'placeholder': 'Lower Bound',
-        'name': 'lower_bound',
-        'id': 'min-limit-input',
-    }), required=False)
-
-    max_range = forms.IntegerField(min_value=1, max_value=288, widget=forms.NumberInput(attrs={
-        'class': 'form-control form-control-lg surah-param-inputs',
-        'placeholder': 'Upper Bound',
-        'name': 'upper_bound',
-        'id': 'max-limit-input',
-    }), required=False)
-    
-    is_group = forms.BooleanField(widget=forms.CheckboxInput(attrs={
-        'class': 'form-check-input',
-        'id': 'is-group'
-    }))
-
-    tag = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control form-control-lg surah-param-inputs',
-        'placeholder': 'Tag',
-        'name': 'tag',
-        'id': 'tag-input'
-    }))
     
     def clean(self):
         cleaned_data = super().clean()
         surah_number = cleaned_data.get('surah_number')
-        self.fields['min_range'].max_value = surah_data.get(surah_number)
-        self.fields['max_range'].max_value = surah_data.get(surah_number)
-
-        lower_limit = cleaned_data.get('min_range')
-        upper_limit = cleaned_data.get('max_range')
-
-        if upper_limit is not None and lower_limit is not None and upper_limit < lower_limit:
-            raise ValidationError("Upper limit is lower than lower limit")
 
 
 class WordIndexForm(forms.Form):
