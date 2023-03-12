@@ -26,34 +26,38 @@
       <tbody>
         {% for hifz in hifz_list %}
           <tr data-category-id="{{ hifz.category_id }}">
-    <td>{{ hifz.surah_number }}</td>
-    <td>{{ hifz.ayat_number }}</td>
-    <td>{{ hifz.category }}</td>
-  </tr>
+            <td class='clickable-row'
+                data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">
+              {{ hifz.surah_number }}
+            </td>
+            <td class='clickable-row'
+                data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">
+              {{ hifz.ayat_number }}
+            </td>
+            <td class='clickable-row'
+                data-href="{% url 'nasrulhifz:detail' hifz.surah_number hifz.ayat_number %}">
+              {{ hifz.category }}
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     {% else %}
       <p>No hifzs found.</p>
     {% endif %}
-      <script>
+    <script>
     const selectElement = document.querySelector('#category-select');
-const tableRows = document.querySelectorAll('tbody tr');
+    const tableRows = document.querySelectorAll('tbody tr');
 
-selectElement.addEventListener('change', (event) => {
-  const selectedCategory = event.target.value;
-  tableRows.forEach(row => {
-    const rowCategoryId = row.getAttribute('data-category-id');
-    if (selectedCategory === '' || rowCategoryId === selectedCategory) {
-      row.style.display = '';
-    } else {
-      row.style.display = 'none';
-    }
-  });
-});
+    selectElement.addEventListener('change', (event) => {
+      const selectedCategory = event.target.value;
+      tableRows.forEach(row => {
+        const rowCategoryId = row.getAttribute('data-category-id');
+        if (selectedCategory === '' || rowCategoryId === selectedCategory) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
     </script>
-
   {% endblock %}
-
-
-
-
